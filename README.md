@@ -1,16 +1,61 @@
-# React + Vite
+# PRIMEAPPAREL Front‑End
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A premium B2B wholesale apparel web application built with **React**, **Vite**, and **Tailwind CSS**. The site showcases a modern, visually rich UI for a garment manufacturer, featuring:
 
-Currently, two official plugins are available:
+- Full‑width hero slider with dynamic background images.
+- Responsive badge highlights (Verified Manufacturer, Global Shipping).
+- Curated collections grid with hover effects.
+- Detailed About page with background‑image sections and core values.
+- Contact and inquiry modals powered by Redux Toolkit.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
 
-## React Compiler
+- **React 18** – component‑based UI.
+- **Vite** – fast dev server & bundler.
+- **Tailwind CSS** – utility‑first styling.
+- **Lucide‑react** – icons.
+- **Redux Toolkit** – state management for auth & leads.
+- **Axios** – API calls.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+```bash
+# Clone the repo (already done)
+cd project-free/client
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev
+```
+
+The app will be available at `http://localhost:5174`.
+
+## Project Structure (high‑level)
+
+```
+src/
+├─ assets/          # static assets
+├─ components/      # reusable UI components (Navbar, Footer, Modals…)
+├─ constants/       # e.g. heroImages.js
+├─ pages/           # page components (Home, About, Contact…)
+├─ redux/           # slices & store
+├─ layouts/         # layout wrappers
+├─ App.jsx & main.jsx
+└─ index.css        # global Tailwind imports & custom utilities
+```
+
+## Scripts
+
+- `npm run dev` – start Vite dev server.
+- `npm run build` – create production bundle.
+- `npm run preview` – preview the production build.
+
+## Deployment
+
+Push to the `main` branch; CI/CD can be set up to deploy the `dist/` folder to any static hosting (Netlify, Vercel, GitHub Pages, etc.).
+
+---
+
+*Feel free to extend the UI, add more pages, or integrate the back‑end API located in the `server` folder.*
