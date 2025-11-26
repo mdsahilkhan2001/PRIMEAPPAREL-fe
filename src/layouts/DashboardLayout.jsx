@@ -36,10 +36,11 @@ const DashboardLayout = () => {
         menuItems = [
             { name: 'Dashboard', path: '/seller', icon: LayoutDashboard },
             { name: 'Leads', path: '/seller/leads', icon: Users },
+            { name: 'Products', path: '/seller/products', icon: Package },
             { name: 'Costing', path: '/seller/costing', icon: Calculator },
             { name: 'Orders', path: '/seller/orders', icon: ShoppingCart },
             { name: 'PI Generation', path: '/seller/pi', icon: FileText },
-            { name: 'Production', path: '/seller/production', icon: Package },
+            { name: 'Production', path: '/seller/production', icon: ClipboardCheck },
         ];
     } else if (user?.role === 'DESIGNER') {
         menuItems = [

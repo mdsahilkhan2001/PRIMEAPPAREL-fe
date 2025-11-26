@@ -75,9 +75,13 @@ const Products = () => {
                             <div key={product._id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-card transition-all duration-300 border border-slate-100">
                                 <div className="relative h-[400px] overflow-hidden bg-gray-100">
                                     <img
-                                        src={product.images[0]}
+                                        src={product.images && product.images[0] ? `http://localhost:5000${encodeURI(product.images[0])}` : '/placeholder.jpg'}
                                         alt={product.name}
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://via.placeholder.com/400?text=No+Image';
+                                        }}
                                     />
                                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                         <Link

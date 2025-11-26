@@ -109,7 +109,15 @@ const ProductDetails = () => {
                                         : 'border-transparent hover:border-slate-200'
                                         }`}
                                 >
-                                    <img src={img} alt={`Thumbnail ${index}`} className="w-full h-full object-cover" />
+                                    <img
+                                        src={`http://localhost:5000${encodeURI(img)}`}
+                                        alt={`Thumbnail ${index}`}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                                        }}
+                                    />
                                 </button>
                             ))}
                         </div>
@@ -117,9 +125,13 @@ const ProductDetails = () => {
                         {/* Main Image */}
                         <div className="flex-1 h-[500px] lg:h-[600px] bg-gray-50 rounded-2xl overflow-hidden relative group border border-slate-100">
                             <img
-                                src={product.images[activeImage]}
+                                src={`http://localhost:5000${encodeURI(product.images[activeImage])}`}
                                 alt={product.name}
                                 className="w-full h-full object-contain mix-blend-multiply p-8 transition-transform duration-500 group-hover:scale-105"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = 'https://via.placeholder.com/600?text=No+Image';
+                                }}
                             />
                             <div className="absolute top-6 right-6 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <button className="p-3 bg-white rounded-full shadow-md hover:bg-accent hover:text-white text-slate-400 transition-all transform hover:scale-110">
