@@ -1,31 +1,65 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { Search, Filter, ArrowRight, Star, ShoppingBag, ChevronLeft, ChevronRight, ChevronDown, Loader2 } from 'lucide-react';
 
 const Products = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const initialCategory = searchParams.get('cat') || 'all';
     const [filter, setFilter] = useState(initialCategory);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searching, setSearching] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [sortBy, setSortBy] = useState('newest');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pagination, setPagination] = useState({ total: 0, pages: 0, page: 1, limit: 12 });
+    const itemsPerPage = 12;
+
+    // Debounce search term
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    // Fetch products from backend
+    const fetchProducts = useCallback(async () => {
+        try {
+            setSearching(true);
+            const { data } = await axios.get('/api/products', {
+                params: {
+                    search: debouncedSearch,
+                    category: filter,
+                    sort: sortBy,
+                    page: currentPage,
+                    limit: itemsPerPage
+                }
+            });
+            setProducts(data.products);
+            setPagination(data.pagination);
+            setLoading(false);
+            setSearching(false);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            setLoading(false);
+            setSearching(false);
+        }
+    }, [debouncedSearch, filter, sortBy, currentPage]);
 
     useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const { data } = await axios.get('/api/products');
-                setProducts(data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching products:', error);
-                setLoading(false);
-            }
-        };
         fetchProducts();
-    }, []);
+    }, [fetchProducts]);
 
-    const filteredProducts = filter === 'all'
-        ? products
-        : products.filter(p => p.category.toLowerCase().includes(filter.toLowerCase()) || p.subCategory.toLowerCase().includes(filter.toLowerCase()));
+    // Reset page when filters change
+    useEffect(() => {
+        if (currentPage !== 1) {
+            setCurrentPage(1);
+        }
+    }, [filter, debouncedSearch, sortBy]);
 
     const categories = [
         { id: 'all', label: 'All Collections' },
@@ -35,6 +69,13 @@ const Products = () => {
         { id: 'loungewear', label: 'Loungewear' },
     ];
 
+    const sortOptions = [
+        { value: 'newest', label: 'Newest Arrivals' },
+        { value: 'price-low', label: 'Price: Low to High' },
+        { value: 'price-high', label: 'Price: High to Low' },
+        { value: 'name-asc', label: 'Name: A-Z' },
+    ];
+
     if (loading) return (
         <div className="flex justify-center items-center h-screen bg-secondary">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
@@ -42,86 +83,227 @@ const Products = () => {
     );
 
     return (
-        <div className="min-h-screen bg-secondary pt-24 pb-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
-                    <span className="text-accent font-semibold tracking-wider uppercase text-sm">Wholesale Catalog</span>
-                    <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary mt-2 mb-4">Curated Excellence</h1>
-                    <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-                        Discover our latest designs available for wholesale manufacturing. From concept to creation, we deliver quality.
+        <div className="min-h-screen bg-secondary">
+            {/* Hero Section */}
+            <div className="relative bg-primary text-white py-24 overflow-hidden">
+                <div className="absolute inset-0 z-0 opacity-20">
+                    <img
+                        src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070"
+                        alt="Background"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+                <div className="container-custom relative z-10 text-center max-w-4xl mx-auto px-4">
+                    <span className="text-accent font-bold tracking-widest uppercase text-sm mb-4 block">
+                        Wholesale Catalog
+                    </span>
+                    <h1 className="text-3xl md:text-5xl font-heading font-bold mb-4 text-white">
+                        Curated Excellence
+                    </h1>
+                    <p className="text-slate-200 text-base md:text-lg max-w-2xl mx-auto mb-10">
+                        Discover our latest designs available for wholesale manufacturing.
+                        Premium quality, flexible MOQs, and global shipping.
+                    </p>
+
+                    {/* Search Bar */}
+                    <div className="max-w-2xl mx-auto relative">
+                        <input
+                            type="text"
+                            placeholder="Search products..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-12 pr-12 py-4 rounded-full text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-accent shadow-2xl transition-all text-base"
+                        />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                        {searching && (
+                            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-accent animate-spin" size={20} />
+                        )}
+                    </div>
+                    <p className="text-slate-300 text-sm mt-3">
+                        {pagination.total} products found
                     </p>
                 </div>
+            </div>
 
-                {/* Filters */}
-                <div className="flex flex-wrap justify-center gap-3 mb-12">
-                    {categories.map((cat) => (
-                        <button
-                            key={cat.id}
-                            onClick={() => setFilter(cat.id)}
-                            className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${filter === cat.id
-                                ? 'bg-primary text-white shadow-lg shadow-primary/20 transform -translate-y-0.5'
-                                : 'bg-white text-slate-600 border border-slate-200 hover:border-accent hover:text-accent'
-                                }`}
-                        >
-                            {cat.label}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Grid */}
-                {filteredProducts.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredProducts.map((product) => (
-                            <div key={product._id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-card transition-all duration-300 border border-slate-100">
-                                <div className="relative h-[400px] overflow-hidden bg-gray-100">
-                                    <img
-                                        src={product.images && product.images[0] ? `http://localhost:5000${encodeURI(product.images[0])}` : '/placeholder.jpg'}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = 'https://via.placeholder.com/400?text=No+Image';
-                                        }}
-                                    />
-                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                        <Link
-                                            to={`/products/${product._id}`}
-                                            className="bg-white text-primary px-8 py-3 rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-accent hover:text-white shadow-lg"
-                                        >
-                                            View Details
-                                        </Link>
-                                    </div>
-                                    {/* Badge */}
-                                    <div className="absolute top-4 left-4">
-                                        <span className="bg-white/90 backdrop-blur-sm text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-                                            MOQ: {product.moq}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="p-6">
-                                    <div className="text-xs text-accent font-semibold uppercase tracking-wider mb-1">{product.subCategory}</div>
-                                    <Link to={`/products/${product._id}`}>
-                                        <h3 className="text-xl font-heading font-bold text-primary mb-2 group-hover:text-accent transition-colors truncate">{product.name}</h3>
-                                    </Link>
-                                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100">
-                                        <span className="text-slate-500 text-sm">Wholesale Price</span>
-                                        <span className="text-primary font-bold">Inquire Now</span>
-                                    </div>
-                                </div>
-                            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Controls Bar */}
+                <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-10 sticky top-20 z-30 bg-secondary/95 backdrop-blur-sm py-4 -mx-4 px-4 border-b border-slate-200/50">
+                    {/* Filters */}
+                    <div className="flex flex-wrap justify-center gap-2">
+                        {categories.map((cat) => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setFilter(cat.id)}
+                                className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${filter === cat.id
+                                    ? 'bg-primary text-white shadow-lg shadow-primary/20 transform -translate-y-0.5'
+                                    : 'bg-white text-slate-600 border border-slate-200 hover:border-accent hover:text-accent'
+                                    }`}
+                            >
+                                {cat.label}
+                            </button>
                         ))}
                     </div>
-                ) : (
-                    <div className="text-center py-20">
-                        <p className="text-xl text-slate-500">No products found in this category.</p>
-                        <button
-                            onClick={() => setFilter('all')}
-                            className="mt-4 text-accent hover:text-accent-hover font-medium underline"
+
+                    {/* Sort Dropdown */}
+                    <div className="relative group min-w-[200px]">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Filter size={16} className="text-slate-400" />
+                        </div>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="appearance-none w-full bg-white border border-slate-200 text-slate-700 py-2.5 pl-10 pr-8 rounded-full focus:outline-none focus:ring-2 focus:ring-accent/50 cursor-pointer hover:border-accent transition-colors text-sm font-medium"
                         >
-                            View all products
-                        </button>
+                            {sortOptions.map(option => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                        </select>
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <ChevronDown size={16} className="text-slate-400" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Loading Overlay */}
+                {searching && !loading && (
+                    <div className="text-center py-8">
+                        <Loader2 className="animate-spin h-8 w-8 text-accent mx-auto" />
+                        <p className="text-slate-500 mt-2">Searching...</p>
                     </div>
                 )}
+
+                {/* Grid */}
+                {!searching && products.length > 0 ? (
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {products.map((product) => (
+                                <div key={product._id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:-translate-y-1">
+                                    {/* Clickable Image Area */}
+                                    <Link to={`/products/${product._id}`} className="block relative h-[400px] overflow-hidden bg-gray-100 cursor-pointer">
+                                        <img
+                                            src={product.images && product.images[0] ? `http://localhost:5000${encodeURI(product.images[0])}` : '/placeholder.jpg'}
+                                            alt={product.name}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = 'https://via.placeholder.com/400?text=No+Image';
+                                            }}
+                                        />
+                                        {/* Badge */}
+                                        <div className="absolute top-4 left-4">
+                                            <span className="bg-white/90 backdrop-blur-sm text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
+                                                MOQ: {product.moq}
+                                            </span>
+                                        </div>
+                                    </Link>
+
+                                    <div className="p-6">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="text-xs text-accent font-semibold uppercase tracking-wider">{product.subCategory}</div>
+                                            {/* Color Swatches Preview */}
+                                            {product.colors && product.colors.length > 0 && (
+                                                <div className="flex -space-x-1">
+                                                    {product.colors.slice(0, 3).map((color, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            className="w-4 h-4 rounded-full border border-white shadow-sm"
+                                                            style={{ backgroundColor: color.hex }}
+                                                            title={color.name}
+                                                        />
+                                                    ))}
+                                                    {product.colors.length > 3 && (
+                                                        <div className="w-4 h-4 rounded-full bg-slate-100 border border-white flex items-center justify-center text-[8px] text-slate-500 font-bold">
+                                                            +
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <Link to={`/products/${product._id}`} className="block group-hover:text-accent transition-colors">
+                                            <h3 className="text-xl font-heading font-bold text-primary mb-2 truncate">{product.name}</h3>
+                                        </Link>
+
+                                        {/* Price Tier Preview */}
+                                        <div className="mb-4">
+                                            {product.priceTiers && product.priceTiers.length > 0 ? (
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-sm text-slate-500">From</span>
+                                                    <span className="text-lg font-bold text-primary">${product.priceTiers[product.priceTiers.length - 1].price.toFixed(2)}</span>
+                                                    <span className="text-sm text-slate-400">/ pc</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-sm text-slate-500 italic">Price on Request</span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100">
+                                            <span className="text-slate-500 text-sm font-medium flex items-center gap-1">
+                                                <Star size={14} className="text-yellow-400 fill-current" />
+                                                4.8
+                                            </span>
+                                            <Link
+                                                to={`/products/${product._id}`}
+                                                className="text-primary font-bold hover:text-accent transition-colors flex items-center gap-2 group/link"
+                                            >
+                                                View Details
+                                                <ArrowRight size={18} className="transform group-hover/link:translate-x-1 transition-transform" />
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Pagination Controls */}
+                        {pagination.pages > 1 && (
+                            <div className="flex justify-center items-center mt-16 gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-2 rounded-full border border-slate-200 text-slate-600 hover:border-accent hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <ChevronLeft size={20} />
+                                </button>
+
+                                {[...Array(pagination.pages)].map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setCurrentPage(idx + 1)}
+                                        className={`w-10 h-10 rounded-full font-medium transition-all ${currentPage === idx + 1
+                                                ? 'bg-primary text-white shadow-lg transform -translate-y-1'
+                                                : 'bg-white text-slate-600 border border-slate-200 hover:border-accent hover:text-accent'
+                                            }`}
+                                    >
+                                        {idx + 1}
+                                    </button>
+                                ))}
+
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.pages))}
+                                    disabled={currentPage === pagination.pages}
+                                    className="p-2 rounded-full border border-slate-200 text-slate-600 hover:border-accent hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <ChevronRight size={20} />
+                                </button>
+                            </div>
+                        )}
+                    </>
+                ) : !searching ? (
+                    <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-slate-100">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <ShoppingBag className="text-slate-300" size={32} />
+                        </div>
+                        <h3 className="text-xl font-bold text-primary mb-2">No products found</h3>
+                        <p className="text-slate-500 mb-6">Try adjusting your search or filter to find what you're looking for.</p>
+                        <button
+                            onClick={() => { setFilter('all'); setSearchTerm(''); setSortBy('newest'); }}
+                            className="btn btn-outline border-slate-200 text-slate-600 hover:border-accent hover:text-accent px-8 py-3 rounded-full"
+                        >
+                            Clear Filters
+                        </button>
+                    </div>
+                ) : null}
             </div>
         </div>
     );

@@ -26,6 +26,7 @@ const DashboardLayout = () => {
     if (user?.role === 'BUYER') {
         menuItems = [
             { name: 'Dashboard', path: '/buyer', icon: LayoutDashboard },
+            { name: 'Customizations', path: '/buyer/customizations', icon: Palette },
             { name: 'My Orders', path: '/buyer/orders', icon: ShoppingCart },
             { name: 'Track Order', path: '/buyer/track', icon: Package },
             { name: 'Wishlist', path: '/buyer/wishlist', icon: ClipboardCheck },
@@ -35,6 +36,7 @@ const DashboardLayout = () => {
     } else if (user?.role === 'SELLER') {
         menuItems = [
             { name: 'Dashboard', path: '/seller', icon: LayoutDashboard },
+            { name: 'Customizations', path: '/seller/customizations', icon: Palette },
             { name: 'Leads', path: '/seller/leads', icon: Users },
             { name: 'Products', path: '/seller/products', icon: Package },
             { name: 'Costing', path: '/seller/costing', icon: Calculator },
@@ -45,6 +47,7 @@ const DashboardLayout = () => {
     } else if (user?.role === 'DESIGNER') {
         menuItems = [
             { name: 'Dashboard', path: '/designer', icon: LayoutDashboard },
+            { name: 'Customizations', path: '/designer/customizations', icon: Palette },
             { name: 'Approvals', path: '/designer/approvals', icon: ClipboardCheck },
             { name: 'Tech Packs', path: '/designer/techpacks', icon: File },
             { name: 'ODM Links', path: '/designer/odm', icon: Palette },
@@ -53,6 +56,7 @@ const DashboardLayout = () => {
         menuItems = [
             { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
             { name: 'User Mgmt', path: '/admin/users', icon: Users },
+            { name: 'Products', path: '/admin/products', icon: Package },
             { name: 'Ledger', path: '/admin/ledger', icon: Calculator },
             { name: 'Analytics', path: '/admin/analytics', icon: LayoutDashboard },
             { name: 'Settings', path: '/admin/settings', icon: Settings },

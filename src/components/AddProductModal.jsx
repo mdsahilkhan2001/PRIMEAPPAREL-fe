@@ -28,6 +28,8 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
     });
     const [imageFiles, setImageFiles] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
+    const [videoFile, setVideoFile] = useState(null);
+    const [videoPreview, setVideoPreview] = useState(null);
 
     useEffect(() => {
         if (product) {
@@ -37,22 +39,32 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                 category: product.category || '',
                 subCategory: product.subCategory || '',
                 images: product.images || [],
-                priceTiers: product.priceTiers || [{ minQty: 100, maxQty: 500, price: 0 }],
-                colors: product.colors || [{ name: '', hex: '#000000', image: '' }],
+                video: product.video || null,
+                priceTiers: product.priceTiers?.map(tier => ({
+                    minQty: tier.minQty ?? 0,
+                    maxQty: tier.maxQty ?? null,
+                    price: tier.price ?? 0
+                })) || [{ minQty: 100, maxQty: 500, price: 0 }],
+                colors: product.colors?.map(color => ({
+                    name: color.name || '',
+                    hex: color.hex || '#000000',
+                    image: color.image || ''
+                })) || [{ name: '', hex: '#000000', image: '' }],
                 sizes: product.sizes || [],
                 moq: product.moq || 100,
                 leadTime: product.leadTime || '',
                 customization: product.customization || [],
-                specifications: product.specifications || {
-                    material: '',
-                    fabricType: '',
-                    technics: '',
-                    feature: '',
-                    origin: 'India'
+                specifications: {
+                    material: product.specifications?.material || '',
+                    fabricType: product.specifications?.fabricType || '',
+                    technics: product.specifications?.technics || '',
+                    feature: product.specifications?.feature || '',
+                    origin: product.specifications?.origin || 'India'
                 },
                 status: product.status || 'ACTIVE'
             });
             setImagePreviews(product.images?.map(img => `http://localhost:5000${encodeURI(img)}`) || []);
+            setVideoPreview(product.video ? `http://localhost:5000${encodeURI(product.video)}` : null);
         }
     }, [product]);
 
@@ -90,27 +102,43 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
 
         // Create previews
         validFiles.forEach((file, index) => {
-            console.log(`Reading file ${index + 1}:`, file.name, file.type);
-
             const reader = new FileReader();
 
             reader.onload = (event) => {
-                console.log('File loaded successfully:', file.name);
                 setImagePreviews(prev => [...prev, event.target.result]);
-            };
-
-            reader.onerror = (error) => {
-                console.error('Error reading file:', file.name, error);
-                alert(`Failed to read ${file.name}`);
             };
 
             reader.readAsDataURL(file);
         });
     };
 
+    const handleVideoUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('video/')) {
+            alert('Please upload a valid video file');
+            return;
+        }
+
+        if (file.size > 50 * 1024 * 1024) { // 50MB limit
+            alert('Video file size should be less than 50MB');
+            return;
+        }
+
+        setVideoFile(file);
+        setVideoPreview(URL.createObjectURL(file));
+    };
+
     const removeImage = (index) => {
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
         setImageFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeVideo = () => {
+        setVideoFile(null);
+        setVideoPreview(null);
+        setFormData(prev => ({ ...prev, video: null }));
     };
 
     const addPriceTier = () => {
@@ -197,9 +225,17 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                 submitData.append('images', file);
             });
 
+            // Add video
+            if (videoFile) {
+                submitData.append('video', videoFile);
+            } else if (product && product.video && !videoPreview) {
+                // Video was removed
+                submitData.append('video', 'null');
+            }
+
             // Add other data as JSON string for complex objects
             Object.keys(formData).forEach(key => {
-                if (key !== 'images') {
+                if (key !== 'images' && key !== 'video') {
                     if (typeof formData[key] === 'object') {
                         submitData.append(key, JSON.stringify(formData[key]));
                     } else {
@@ -393,7 +429,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                         <input
                                             type="number"
                                             placeholder="Min Qty"
-                                            value={tier.minQty}
+                                            value={tier.minQty ?? ''}
                                             onChange={(e) => updatePriceTier(index, 'minQty', e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                                             required
@@ -401,7 +437,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                         <input
                                             type="number"
                                             placeholder="Max Qty (optional)"
-                                            value={tier.maxQty || ''}
+                                            value={tier.maxQty ?? ''}
                                             onChange={(e) => updatePriceTier(index, 'maxQty', e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                                         />
@@ -409,7 +445,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                             type="number"
                                             step="0.01"
                                             placeholder="Price ($)"
-                                            value={tier.price}
+                                            value={tier.price ?? ''}
                                             onChange={(e) => updatePriceTier(index, 'price', e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                                             required
@@ -443,13 +479,13 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                         <input
                                             type="text"
                                             placeholder="Color Name"
-                                            value={color.name}
+                                            value={color.name ?? ''}
                                             onChange={(e) => updateColor(index, 'name', e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                                         />
                                         <input
                                             type="color"
-                                            value={color.hex}
+                                            value={color.hex ?? '#000000'}
                                             onChange={(e) => updateColor(index, 'hex', e.target.value)}
                                             className="w-16 h-10 border border-gray-300 rounded-lg cursor-pointer"
                                         />
@@ -518,73 +554,121 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                         </div>
                     )}
 
-                    {/* Step 3: Images */}
+                    {/* Step 3: Images & Video */}
                     {step === 3 && (
-                        <div className="space-y-4">
+                        <div className="space-y-8">
+                            {/* Images Section */}
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Product Images</h3>
                                 <p className="text-sm text-gray-600 mb-4">Upload 4+ images showing different angles (front, back, side, detail views)</p>
+
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                    id="image-upload"
+                                />
+
+                                <label
+                                    htmlFor="image-upload"
+                                    className="block border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors"
+                                >
+                                    <Upload className="mx-auto text-gray-400 mb-4" size={48} />
+                                    <span className="text-primary hover:text-primary/80 font-medium text-lg">
+                                        Click to upload images
+                                    </span>
+                                    <p className="text-sm text-gray-500 mt-2">Select multiple images at once</p>
+                                    <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB each • Recommended: 4+ images</p>
+                                </label>
+
+                                {imagePreviews.length > 0 && (
+                                    <div className="mt-6">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <p className="text-sm font-medium text-gray-700">
+                                                {imagePreviews.length} image{imagePreviews.length !== 1 ? 's' : ''} selected
+                                            </p>
+                                            <label
+                                                htmlFor="image-upload"
+                                                className="text-sm text-primary hover:text-primary/80 cursor-pointer font-medium"
+                                            >
+                                                + Add more
+                                            </label>
+                                        </div>
+                                        <div className="grid grid-cols-4 gap-4">
+                                            {imagePreviews.map((preview, index) => (
+                                                <div key={index} className="relative group">
+                                                    <img
+                                                        src={preview}
+                                                        alt={`Preview ${index + 1}`}
+                                                        className="w-full h-32 object-cover rounded-lg border border-gray-200 bg-gray-50"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity rounded-lg flex items-center justify-center">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeImage(index)}
+                                                            className="bg-red-500 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                                            title="Remove image"
+                                                        >
+                                                            <X size={16} />
+                                                        </button>
+                                                    </div>
+                                                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                                        {index + 1}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
-                            <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleImageUpload}
-                                className="hidden"
-                                id="image-upload"
-                            />
+                            {/* Video Section */}
+                            <div className="border-t border-gray-200 pt-8">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-2">Product Video (Optional)</h3>
+                                <p className="text-sm text-gray-600 mb-4">Upload a short video showcasing your product details and movement.</p>
 
-                            <label
-                                htmlFor="image-upload"
-                                className="block border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors"
-                            >
-                                <Upload className="mx-auto text-gray-400 mb-4" size={48} />
-                                <span className="text-primary hover:text-primary/80 font-medium text-lg">
-                                    Click to upload images
-                                </span>
-                                <p className="text-sm text-gray-500 mt-2">Select multiple images at once</p>
-                                <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB each • Recommended: 4+ images</p>
-                            </label>
-
-                            {imagePreviews.length > 0 && (
-                                <div className="mt-6">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <p className="text-sm font-medium text-gray-700">
-                                            {imagePreviews.length} image{imagePreviews.length !== 1 ? 's' : ''} selected
-                                        </p>
+                                {!videoPreview ? (
+                                    <>
+                                        <input
+                                            type="file"
+                                            accept="video/*"
+                                            onChange={handleVideoUpload}
+                                            className="hidden"
+                                            id="video-upload"
+                                        />
                                         <label
-                                            htmlFor="image-upload"
-                                            className="text-sm text-primary hover:text-primary/80 cursor-pointer font-medium"
+                                            htmlFor="video-upload"
+                                            className="block border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors"
                                         >
-                                            + Add more
-                                        </label>
-                                    </div>
-                                    <div className="grid grid-cols-4 gap-4">
-                                        {imagePreviews.map((preview, index) => (
-                                            <div key={index} className="relative group">
-                                                <img
-                                                    alt={`Preview ${index + 1}`}
-                                                    className="w-full h-32 object-cover rounded-lg border border-gray-200 bg-gray-50"
-                                                />
-                                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity rounded-lg flex items-center justify-center">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeImage(index)}
-                                                        className="bg-red-500 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                                                        title="Remove image"
-                                                    >
-                                                        <X size={16} />
-                                                    </button>
-                                                </div>
-                                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-                                                    {index + 1}
-                                                </div>
+                                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
                                             </div>
-                                        ))}
+                                            <span className="text-primary hover:text-primary/80 font-medium text-lg">
+                                                Click to upload video
+                                            </span>
+                                            <p className="text-sm text-gray-500 mt-2">MP4, WebM up to 50MB</p>
+                                        </label>
+                                    </>
+                                ) : (
+                                    <div className="relative group max-w-md">
+                                        <video
+                                            src={videoPreview}
+                                            controls
+                                            className="w-full rounded-lg border border-gray-200 bg-black"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={removeVideo}
+                                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 transition-colors"
+                                            title="Remove video"
+                                        >
+                                            <X size={16} />
+                                        </button>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     )}
 
