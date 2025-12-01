@@ -4,12 +4,14 @@ import Dashboard from '../pages/Dashboard';
 import LeadManagement from '../pages/LeadManagement';
 import Costing from '../pages/Costing';
 import ProductManagement from '../pages/ProductManagement';
+import SellerCustomizationRequests from '../pages/customization/SellerCustomizationRequests';
 
 const SellerRoutes = () => {
     return (
         <Routes>
             <Route element={<DashboardLayout />}>
                 <Route index element={<Dashboard />} />
+                <Route path="customizations" element={<SellerCustomizationRequests />} />
                 <Route path="leads" element={<LeadManagement />} />
                 <Route path="costing" element={<Costing />} />
                 <Route path="products" element={<ProductManagement />} />

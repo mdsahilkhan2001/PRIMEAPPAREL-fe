@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { register, reset } from '../../redux/slices/authSlice';
-import { ShoppingBag, Loader2 } from 'lucide-react';
+import { ShoppingBag, Loader2, User, Mail, Lock, Phone, Building, ArrowRight, AlertCircle } from 'lucide-react';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -49,102 +49,194 @@ const Register = () => {
             password,
             phone,
             company,
-            role: 'BUYER' // Explicitly set role
+            role: 'BUYER'
         };
         dispatch(register(userData));
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-10">
-                <div className="text-center">
-                    <div className="flex justify-center">
-                        <ShoppingBag className="h-12 w-12 text-accent" />
-                    </div>
-                    <h2 className="mt-8 text-3xl md:text-4xl font-extrabold text-gray-900">
-                        Create a Buyer Account
-                    </h2>
-                    <p className="mt-4 text-sm text-gray-600">
-                        Already have an account?{' '}
-                        <Link to="/login" className="font-medium text-accent hover:text-accent-dark">
-                            Sign in
-                        </Link>
-                    </p>
+        <div className="min-h-screen flex bg-white">
+            {/* Left Side - Image Section */}
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary">
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="/service-img/ser2.jpg"
+                        alt="Register Background"
+                        className="w-full h-full object-cover opacity-60"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary/50 mix-blend-multiply" />
                 </div>
-                <form className="mt-10 space-y-6" onSubmit={onSubmit}>
-                    <div className="space-y-4">
-                        <div>
-                            <input
-                                type="text"
-                                name="name"
-                                value={name}
-                                onChange={onChange}
-                                required
-                                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent sm:text-sm transition-all"
-                                placeholder="Full Name"
-                            />
-                        </div>
-                        <div>
-                            <input
-                                type="email"
-                                name="email"
-                                value={email}
-                                onChange={onChange}
-                                required
-                                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent sm:text-sm transition-all"
-                                placeholder="Email address"
-                            />
-                        </div>
-                        <div>
-                            <input
-                                type="text"
-                                name="company"
-                                value={company}
-                                onChange={onChange}
-                                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent sm:text-sm transition-all"
-                                placeholder="Company Name (Optional)"
-                            />
-                        </div>
-                        <div>
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={phone}
-                                onChange={onChange}
-                                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent sm:text-sm transition-all"
-                                placeholder="Phone Number (Optional)"
-                            />
-                        </div>
-                        <div>
-                            <input
-                                type="password"
-                                name="password"
-                                value={password}
-                                onChange={onChange}
-                                required
-                                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent sm:text-sm transition-all"
-                                placeholder="Password"
-                            />
+
+                <div className="relative z-10 flex flex-col justify-between w-full p-12 text-white">
+                    <div>
+                        <Link to="/" className="flex items-center gap-2 text-white hover:text-accent transition-colors w-fit">
+                            <ShoppingBag className="h-8 w-8" />
+                            <span className="font-heading font-bold text-2xl">Prime Apparel</span>
+                        </Link>
+                    </div>
+
+                    <div className="mb-12">
+                        <h1 className="text-5xl font-heading font-bold mb-6 leading-tight">
+                            Join Our Global <br />
+                            <span className="text-accent">Trading Network</span>
+                        </h1>
+                        <p className="text-xl text-slate-200 max-w-md leading-relaxed">
+                            Create your buyer account today to access wholesale pricing, track orders, and connect with verified manufacturers.
+                        </p>
+
+                        <div className="mt-8 grid grid-cols-2 gap-6">
+                            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                                <h3 className="font-bold text-accent text-lg">500+</h3>
+                                <p className="text-sm text-slate-300">Verified Suppliers</p>
+                            </div>
+                            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                                <h3 className="font-bold text-accent text-lg">Global</h3>
+                                <p className="text-sm text-slate-300">Shipping Network</p>
+                            </div>
                         </div>
                     </div>
 
-                    {isError && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            <strong className="font-bold">Error! </strong>
-                            <span className="block sm:inline">{message}</span>
-                        </div>
-                    )}
+                    <div className="flex gap-4 text-sm text-slate-300">
+                        <span>© 2025 Prime Apparel</span>
+                        <span>•</span>
+                        <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                    </div>
+                </div>
+            </div>
 
-                    <div>
+            {/* Right Side - Form Section */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-slate-50 overflow-y-auto">
+                <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
+                    <div className="text-center lg:text-left">
+                        <div className="lg:hidden flex justify-center mb-6">
+                            <ShoppingBag className="h-10 w-10 text-accent" />
+                        </div>
+                        <h2 className="text-3xl font-heading font-bold text-primary">Create Account</h2>
+                        <p className="mt-2 text-slate-500">
+                            Already have an account?{' '}
+                            <Link to="/login" className="font-medium text-accent hover:text-accent-dark transition-colors">
+                                Sign in
+                            </Link>
+                        </p>
+                    </div>
+
+                    <form className="mt-8 space-y-5" onSubmit={onSubmit}>
+                        <div className="space-y-5">
+                            {/* Name */}
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <User className="h-5 w-5 text-slate-400 group-focus-within:text-accent transition-colors" />
+                                </div>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={name}
+                                    onChange={onChange}
+                                    required
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    placeholder="Full Name"
+                                />
+                            </div>
+
+                            {/* Email */}
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-accent transition-colors" />
+                                </div>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={email}
+                                    onChange={onChange}
+                                    required
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    placeholder="Email address"
+                                />
+                            </div>
+
+                            {/* Company */}
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Building className="h-5 w-5 text-slate-400 group-focus-within:text-accent transition-colors" />
+                                </div>
+                                <input
+                                    type="text"
+                                    name="company"
+                                    value={company}
+                                    onChange={onChange}
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    placeholder="Company Name (Optional)"
+                                />
+                            </div>
+
+                            {/* Phone */}
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Phone className="h-5 w-5 text-slate-400 group-focus-within:text-accent transition-colors" />
+                                </div>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    value={phone}
+                                    onChange={onChange}
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    placeholder="Phone Number (Optional)"
+                                />
+                            </div>
+
+                            {/* Password */}
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-accent transition-colors" />
+                                </div>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={password}
+                                    onChange={onChange}
+                                    required
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    placeholder="Password"
+                                />
+                            </div>
+                        </div>
+
+                        {isError && (
+                            <div className="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-lg shadow-sm animate-shake flex items-start gap-3">
+                                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="font-bold text-sm">Registration Failed</p>
+                                    <p className="text-sm mt-1">{message}</p>
+                                </div>
+                            </div>
+                        )}
+
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-bold rounded-lg text-primary bg-accent hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 transition-all shadow-lg"
+                            className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-base font-bold text-primary bg-accent hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-70 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5"
                         >
-                            {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Register'}
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                                    Creating Account...
+                                </>
+                            ) : (
+                                <>
+                                    Create Account
+                                    <ArrowRight className="ml-2 h-5 w-5" />
+                                </>
+                            )}
                         </button>
-                    </div>
-                </form>
+
+                        <p className="text-xs text-center text-slate-500 mt-4">
+                            By registering, you agree to our{' '}
+                            <Link to="/terms" className="text-accent hover:underline">Terms of Service</Link>
+                            {' '}and{' '}
+                            <Link to="/privacy" className="text-accent hover:underline">Privacy Policy</Link>.
+                        </p>
+                    </form>
+                </div>
             </div>
         </div>
     );
