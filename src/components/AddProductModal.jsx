@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Upload, Plus, Minus, Check } from 'lucide-react';
+import { X, Upload, Plus, Minus, Check, Crop } from 'lucide-react';
+import ImageCropper from './ImageCropper';
 import API from '../api';
 import { CATEGORY_HIERARCHY } from '../constants/categories';
 
@@ -43,6 +44,8 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
     const [imagePreviews, setImagePreviews] = useState([]);
     const [videoFile, setVideoFile] = useState(null);
     const [videoPreview, setVideoPreview] = useState(null);
+    const [croppingImageIndex, setCroppingImageIndex] = useState(null);
+    const [cropperOpen, setCropperOpen] = useState(false);
 
     useEffect(() => {
         if (product) {
@@ -82,6 +85,18 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
             setImagePreviews(product.images?.map(img => `http://localhost:5000${encodeURI(img)}`) || []);
             setVideoPreview(product.video ? `http://localhost:5000${encodeURI(product.video)}` : null);
         }
+
+        // Cleanup object URLs on unmount
+        return () => {
+            imagePreviews.forEach(preview => {
+                if (preview.startsWith('blob:')) {
+                    URL.revokeObjectURL(preview);
+                }
+            });
+            if (videoPreview && videoPreview.startsWith('blob:')) {
+                URL.revokeObjectURL(videoPreview);
+            }
+        };
     }, [product]);
 
     const handleInputChange = (e) => {
@@ -123,16 +138,9 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
 
         setImageFiles(prev => [...prev, ...validFiles]);
 
-        // Create previews
-        validFiles.forEach((file, index) => {
-            const reader = new FileReader();
-
-            reader.onload = (event) => {
-                setImagePreviews(prev => [...prev, event.target.result]);
-            };
-
-            reader.readAsDataURL(file);
-        });
+        // Create previews using URL.createObjectURL for better performance and reliability
+        const newPreviews = validFiles.map(file => URL.createObjectURL(file));
+        setImagePreviews(prev => [...prev, ...newPreviews]);
     };
 
     const handleVideoUpload = (e) => {
@@ -162,6 +170,30 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
         setVideoFile(null);
         setVideoPreview(null);
         setFormData(prev => ({ ...prev, video: null }));
+    };
+
+    const startCropping = (index) => {
+        setCroppingImageIndex(index);
+        setCropperOpen(true);
+    };
+
+    const handleCropSave = (croppedBlob) => {
+        const newImageFiles = [...imageFiles];
+        const newImagePreviews = [...imagePreviews];
+
+        // Replace the file
+        const originalFile = newImageFiles[croppingImageIndex];
+        const croppedFile = new File([croppedBlob], originalFile.name, { type: 'image/jpeg' });
+        newImageFiles[croppingImageIndex] = croppedFile;
+
+        // Replace the preview
+        const newPreviewUrl = URL.createObjectURL(croppedBlob);
+        newImagePreviews[croppingImageIndex] = newPreviewUrl;
+
+        setImageFiles(newImageFiles);
+        setImagePreviews(newImagePreviews);
+        setCropperOpen(false);
+        setCroppingImageIndex(null);
     };
 
     const addPriceTier = () => {
@@ -307,7 +339,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
     const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Free Size'];
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" >
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" >
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
                 {/* Header */}
                 <div className="p-6 border-b border-gray-200 flex justify-between items-center">
@@ -659,7 +691,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                                         alt={`Preview ${index + 1}`}
                                                         className="w-full h-32 object-cover rounded-lg border border-gray-200 bg-gray-50"
                                                     />
-                                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity rounded-lg flex items-center justify-center">
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all rounded-lg flex items-center justify-center">
                                                         <button
                                                             type="button"
                                                             onClick={() => removeImage(index)}
@@ -668,8 +700,16 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                                         >
                                                             <X size={16} />
                                                         </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => startCropping(index)}
+                                                            className="bg-blue-500 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 ml-2"
+                                                            title="Crop image"
+                                                        >
+                                                            <Crop size={16} />
+                                                        </button>
                                                     </div>
-                                                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                                                         {index + 1}
                                                     </div>
                                                 </div>
@@ -823,6 +863,13 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                     )}
                 </div>
             </div>
+            {cropperOpen && croppingImageIndex !== null && (
+                <ImageCropper
+                    image={imagePreviews[croppingImageIndex]}
+                    onCrop={handleCropSave}
+                    onClose={() => setCropperOpen(false)}
+                />
+            )}
         </div>
     );
 };

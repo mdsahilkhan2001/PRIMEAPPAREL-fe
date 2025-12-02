@@ -62,7 +62,7 @@ export const FEATURED_CATEGORIES = [
         description: "Classic and contemporary designs",
         image: "/categories/kaftan-men.jpg",
         link: "/products?cat=kaftan",
-        color: "from-blue-500 to-indigo-600"
+        color: "from-slate-600 to-slate-700"
     },
     {
         id: 2,
@@ -70,7 +70,7 @@ export const FEATURED_CATEGORIES = [
         description: "Elegant embroidered styles",
         image: "/categories/kaftan-women.jpg",
         link: "/products?cat=kaftan",
-        color: "from-pink-500 to-rose-600"
+        color: "from-gray-600 to-gray-700"
     },
     {
         id: 3,
@@ -78,7 +78,7 @@ export const FEATURED_CATEGORIES = [
         description: "Resort and vacation essentials",
         image: "/categories/beachwear.jpg",
         link: "/products?cat=beachwear",
-        color: "from-cyan-500 to-blue-500"
+        color: "from-slate-500 to-slate-600"
     },
     {
         id: 4,
@@ -86,7 +86,7 @@ export const FEATURED_CATEGORIES = [
         description: "Comfortable everyday wear",
         image: "/categories/loungewear.jpg",
         link: "/products?cat=loungewear",
-        color: "from-purple-500 to-violet-600"
+        color: "from-gray-500 to-gray-600"
     },
     {
         id: 5,
@@ -94,7 +94,7 @@ export const FEATURED_CATEGORIES = [
         description: "Premium vacation collections",
         image: "/categories/resort.jpg",
         link: "/products?cat=resort",
-        color: "from-orange-500 to-amber-600"
+        color: "from-slate-700 to-slate-800"
     },
     {
         id: 6,
@@ -102,6 +102,6 @@ export const FEATURED_CATEGORIES = [
         description: "Bring your vision to life",
         image: "/categories/custom.jpg",
         link: "/inquiry",
-        color: "from-emerald-500 to-teal-600"
+        color: "from-gray-700 to-gray-800"
     }
 ];

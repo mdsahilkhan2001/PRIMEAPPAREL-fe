@@ -314,7 +314,7 @@ const Home = () => {
             <Link
               key={category.id}
               to={category.link}
-              className="group relative h-64 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              className="group relative h-64 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2"
             >
               {/* Background Image */}
               {categoryImages[idx] ? (
@@ -326,15 +326,15 @@ const Home = () => {
                 <div className={`absolute inset-0 bg-gradient-to-br ${category.color}`} />
               )}
 
-              {/* Gradient Overlay for text readability */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-75 group-hover:opacity-70 transition-opacity`} />
+              {/* Bottom gradient overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
               {/* Content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 relative z-10">
-                <h3 className="text-2xl font-heading font-bold mb-2 group-hover:scale-110 transition-transform drop-shadow-lg">
+                <h3 className="text-2xl font-heading font-bold mb-2 group-hover:scale-110 transition-transform" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>
                   {category.name}
                 </h3>
-                <p className="text-white/95 mb-4 drop-shadow-md">{category.description}</p>
+                <p className="text-white/95 mb-4" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.9)' }}>{category.description}</p>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="font-semibold">Explore</span>
                   <ArrowRight size={20} />

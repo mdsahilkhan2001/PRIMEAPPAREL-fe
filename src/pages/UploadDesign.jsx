@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Plus, Minus, FileText, Image as ImageIcon, Video, DollarSign, Package, Ruler, CheckCircle, AlertCircle, Save } from 'lucide-react';
+import { Upload, Plus, Minus, FileText, Image as ImageIcon, Video, DollarSign, Package, Ruler, CheckCircle, AlertCircle, Save, Crop } from 'lucide-react';
+import ImageCropper from '../components/ImageCropper';
 import API from '../api';
 import { CATEGORY_HIERARCHY } from '../constants/categories';
 
@@ -56,6 +57,19 @@ const UploadDesign = () => {
         images: [],
         video: null
     });
+    const [croppingImageIndex, setCroppingImageIndex] = useState(null);
+    const [cropperOpen, setCropperOpen] = useState(false);
+
+    useEffect(() => {
+        return () => {
+            previews.images.forEach(url => {
+                if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+            });
+            if (previews.video && previews.video.startsWith('blob:')) {
+                URL.revokeObjectURL(previews.video);
+            }
+        };
+    }, []);
 
     const sections = [
         { id: 'basic', label: 'Basic Info', icon: FileText },
@@ -150,6 +164,30 @@ const UploadDesign = () => {
         setFormData(prev => ({ ...prev, measurements: newMeasurements }));
     };
 
+    const startCropping = (index) => {
+        setCroppingImageIndex(index);
+        setCropperOpen(true);
+    };
+
+    const handleCropSave = (croppedBlob) => {
+        const newImages = [...files.images];
+        const newPreviews = [...previews.images];
+
+        // Replace the file
+        const originalFile = newImages[croppingImageIndex];
+        const croppedFile = new File([croppedBlob], originalFile.name, { type: 'image/jpeg' });
+        newImages[croppingImageIndex] = croppedFile;
+
+        // Replace the preview
+        const newPreviewUrl = URL.createObjectURL(croppedBlob);
+        newPreviews[croppingImageIndex] = newPreviewUrl;
+
+        setFiles(prev => ({ ...prev, images: newImages }));
+        setPreviews(prev => ({ ...prev, images: newPreviews }));
+        setCropperOpen(false);
+        setCroppingImageIndex(null);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -212,8 +250,8 @@ const UploadDesign = () => {
                             key={section.id}
                             onClick={() => setActiveSection(section.id)}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeSection === section.id
-                                    ? 'bg-accent/10 text-accent shadow-sm'
-                                    : 'text-slate-600 hover:bg-slate-50'
+                                ? 'bg-accent/10 text-accent shadow-sm'
+                                : 'text-slate-600 hover:bg-slate-50'
                                 }`}
                         >
                             <section.icon size={18} />
@@ -337,12 +375,20 @@ const UploadDesign = () => {
                                     {previews.images.map((src, idx) => (
                                         <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group">
                                             <img src={src} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
-                                            <button
-                                                onClick={() => removeImage(idx)}
-                                                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <Minus size={14} />
-                                            </button>
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all">
+                                                <button
+                                                    onClick={() => removeImage(idx)}
+                                                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <Minus size={14} />
+                                                </button>
+                                                <button
+                                                    onClick={() => startCropping(idx)}
+                                                    className="absolute bottom-2 right-2 bg-blue-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <Crop size={14} />
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                     <label className="aspect-square rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:border-accent hover:bg-accent/5 transition-all">
@@ -494,8 +540,8 @@ const UploadDesign = () => {
                                         key={size}
                                         onClick={() => handleSizeToggle(size)}
                                         className={`px-4 py-2 rounded-lg border text-sm font-bold transition-all ${formData.sizes.includes(size)
-                                                ? 'bg-primary text-white border-primary'
-                                                : 'bg-white text-slate-600 border-slate-200 hover:border-primary'
+                                            ? 'bg-primary text-white border-primary'
+                                            : 'bg-white text-slate-600 border-slate-200 hover:border-primary'
                                             }`}
                                     >
                                         {size}
@@ -712,6 +758,13 @@ const UploadDesign = () => {
 
                 </div>
             </div>
+            {cropperOpen && croppingImageIndex !== null && (
+                <ImageCropper
+                    image={previews.images[croppingImageIndex]}
+                    onCrop={handleCropSave}
+                    onClose={() => setCropperOpen(false)}
+                />
+            )}
         </div>
     );
 };
