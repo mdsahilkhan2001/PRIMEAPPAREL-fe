@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { X, Upload, Check, ChevronRight, ChevronLeft, Calendar, DollarSign, Info } from 'lucide-react';
 import axios from '../../api';
+import { getImageUrl } from '../../config';
 
 const CustomizationModal = ({ product, isOpen, onClose }) => {
     const { user } = useSelector((state) => state.auth);
@@ -391,7 +392,7 @@ const CustomizationModal = ({ product, isOpen, onClose }) => {
                             {/* Product Summary */}
                             <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
                                 <img
-                                    src={`http://localhost:5000${product.images[0]}`}
+                                    src={getImageUrl(product.images[0])}
                                     alt={product.name}
                                     className="w-16 h-16 object-cover rounded-md"
                                 />

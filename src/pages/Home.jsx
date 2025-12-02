@@ -21,9 +21,11 @@ import {
   Settings,
   Factory
 } from 'lucide-react';
-import axios from 'axios';
+import API from '../api';
 import { HERO_IMAGES } from '../constants/heroImages';
 import { TESTIMONIALS, FEATURED_CATEGORIES } from '../constants/testimonials';
+
+import { getImageUrl } from '../config';
 
 /**
  * Home page – premium B2B wholesale apparel landing page.
@@ -42,13 +44,13 @@ const Home = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get('/api/products');
+        const { data } = await API.get('/products');
         // API now returns {products: [], pagination: {}} instead of plain array
         const productsArray = data.products || data;
         setProducts(productsArray.slice(0, 3));
         // Use 6 products for category backgrounds (or reuse if less)
         const categoryBgs = productsArray.slice(0, 6).map(p =>
-          p.images && p.images[0] ? `http://localhost:5000${encodeURI(p.images[0])}` : null
+          p.images && p.images[0] ? getImageUrl(p.images[0]) : null
         );
         // Fill remaining slots if we have less than 6 products
         while (categoryBgs.length < 6 && categoryBgs.length > 0) {
@@ -451,7 +453,7 @@ const Home = () => {
                   <img
                     src={
                       product.images && product.images[0]
-                        ? `http://localhost:5000${encodeURI(product.images[0])}`
+                        ? getImageUrl(product.images[0])
                         : 'https://via.placeholder.com/800x600?text=No+Image'
                     }
                     alt={product.name}

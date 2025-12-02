@@ -3,6 +3,7 @@ import { X, Upload, Plus, Minus, Check, Crop } from 'lucide-react';
 import ImageCropper from './ImageCropper';
 import API from '../api';
 import { CATEGORY_HIERARCHY } from '../constants/categories';
+import { getImageUrl, getFileUrl } from '../config';
 
 const AddProductModal = ({ isOpen, onClose, product }) => {
     const [step, setStep] = useState(1);
@@ -82,8 +83,8 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                 },
                 status: product.status || 'ACTIVE'
             });
-            setImagePreviews(product.images?.map(img => `http://localhost:5000${encodeURI(img)}`) || []);
-            setVideoPreview(product.video ? `http://localhost:5000${encodeURI(product.video)}` : null);
+            setImagePreviews(product.images?.map(img => getImageUrl(img)) || []);
+            setVideoPreview(product.video ? getFileUrl(product.video) : null);
         }
 
         // Cleanup object URLs on unmount
