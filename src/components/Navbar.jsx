@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Menu, X, ShoppingBag, User, LogOut, LogIn } from 'lucide-react';
+import { Menu, X, ShoppingBag, User, LogOut, LogIn, ChevronDown, ChevronRight } from 'lucide-react';
+import { CATEGORY_HIERARCHY } from '../constants/categories';
 import { logout, reset } from '../redux/slices/authSlice';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [activeCategory, setActiveCategory] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -40,7 +42,7 @@ const Navbar = () => {
     const navLinks = [
         { name: 'Home', path: '/' },
         { name: 'About', path: '/about' },
-        { name: 'Products', path: '/products' },
+        // Products link replaced by Category Dropdown
         { name: 'Services', path: '/services' },
         { name: 'Contact', path: '/contact' },
     ];
@@ -64,18 +66,48 @@ const Navbar = () => {
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex space-x-8 items-center">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                to={link.path}
-                                className={`text-sm font-medium transition-colors duration-200 ${isActive(link.path)
-                                    ? 'text-accent font-semibold'
-                                    : 'text-slate-600 hover:text-primary'
-                                    }`}
+                        <Link to="/" className={`text-sm font-medium transition-colors duration-200 ${isActive('/') ? 'text-accent font-semibold' : 'text-slate-600 hover:text-primary'}`}>Home</Link>
+                        <Link to="/about" className={`text-sm font-medium transition-colors duration-200 ${isActive('/about') ? 'text-accent font-semibold' : 'text-slate-600 hover:text-primary'}`}>About Us</Link>
+
+                        {/* Category Dropdown */}
+                        <div className="relative group">
+                            <button
+                                className={`flex items-center gap-1 text-sm font-medium transition-colors duration-200 ${isActive('/products') ? 'text-accent font-semibold' : 'text-slate-600 hover:text-primary'}`}
                             >
-                                {link.name}
-                            </Link>
-                        ))}
+                                Category <ChevronDown size={14} />
+                            </button>
+
+                            {/* Dropdown Menu */}
+                            <div className="absolute top-full left-0 w-56 bg-white shadow-xl rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 border border-slate-100">
+                                {Object.keys(CATEGORY_HIERARCHY).map((category) => (
+                                    <div key={category} className="relative group/sub">
+                                        <Link
+                                            to={`/products?cat=${category}`}
+                                            className="flex items-center justify-between px-4 py-2 text-sm text-slate-600 hover:text-accent hover:bg-slate-50"
+                                        >
+                                            {category}
+                                            <ChevronRight size={14} className="text-slate-400" />
+                                        </Link>
+
+                                        {/* Sub Menu */}
+                                        <div className="absolute left-full top-0 w-48 bg-white shadow-xl rounded-lg py-2 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-300 transform translate-x-2 group-hover/sub:translate-x-0 border border-slate-100">
+                                            {CATEGORY_HIERARCHY[category].map((sub) => (
+                                                <Link
+                                                    key={sub}
+                                                    to={`/products?cat=${category}&subCategory=${sub}`}
+                                                    className="block px-4 py-2 text-sm text-slate-600 hover:text-accent hover:bg-slate-50"
+                                                >
+                                                    {sub}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <Link to="/services" className={`text-sm font-medium transition-colors duration-200 ${isActive('/services') ? 'text-accent font-semibold' : 'text-slate-600 hover:text-primary'}`}>Services</Link>
+                        <Link to="/contact" className={`text-sm font-medium transition-colors duration-200 ${isActive('/contact') ? 'text-accent font-semibold' : 'text-slate-600 hover:text-primary'}`}>Contact</Link>
 
                         <div className="h-6 w-px bg-slate-200 mx-2"></div>
 
@@ -134,19 +166,50 @@ const Navbar = () => {
             {isOpen && (
                 <div className="md:hidden bg-white border-t border-slate-100 absolute w-full shadow-lg">
                     <div className="px-4 pt-2 pb-6 space-y-1">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                to={link.path}
-                                onClick={() => setIsOpen(false)}
-                                className={`block px-3 py-3 rounded-lg text-base font-medium transition-colors ${isActive(link.path)
-                                    ? 'text-accent bg-accent/5'
-                                    : 'text-slate-600 hover:text-primary hover:bg-slate-50'
-                                    }`}
-                            >
-                                {link.name}
-                            </Link>
-                        ))}
+                        <Link to="/" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-lg text-base font-medium text-slate-600 hover:text-primary hover:bg-slate-50">Home</Link>
+                        <Link to="/about" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-lg text-base font-medium text-slate-600 hover:text-primary hover:bg-slate-50">About Us</Link>
+
+                        {/* Mobile Category Menu */}
+                        <div className="px-3 py-2">
+                            <div className="font-medium text-slate-900 mb-2">Categories</div>
+                            <div className="pl-2 space-y-1 border-l-2 border-slate-100">
+                                {Object.keys(CATEGORY_HIERARCHY).map((category) => (
+                                    <div key={category}>
+                                        <button
+                                            onClick={() => setActiveCategory(activeCategory === category ? null : category)}
+                                            className="flex items-center justify-between w-full py-2 text-sm text-slate-600"
+                                        >
+                                            {category}
+                                            <ChevronDown size={14} className={`transform transition-transform ${activeCategory === category ? 'rotate-180' : ''}`} />
+                                        </button>
+                                        {activeCategory === category && (
+                                            <div className="pl-4 pb-2 space-y-2 bg-slate-50 rounded-md mt-1">
+                                                <Link
+                                                    to={`/products?cat=${category}`}
+                                                    onClick={() => setIsOpen(false)}
+                                                    className="block text-xs font-bold text-accent py-1"
+                                                >
+                                                    View All {category}
+                                                </Link>
+                                                {CATEGORY_HIERARCHY[category].map((sub) => (
+                                                    <Link
+                                                        key={sub}
+                                                        to={`/products?cat=${category}&subCategory=${sub}`}
+                                                        onClick={() => setIsOpen(false)}
+                                                        className="block text-xs text-slate-500 hover:text-accent py-1"
+                                                    >
+                                                        {sub}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <Link to="/services" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-lg text-base font-medium text-slate-600 hover:text-primary hover:bg-slate-50">Services</Link>
+                        <Link to="/contact" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-lg text-base font-medium text-slate-600 hover:text-primary hover:bg-slate-50">Contact</Link>
 
                         <div className="border-t border-slate-100 my-4 pt-4">
                             {user ? (

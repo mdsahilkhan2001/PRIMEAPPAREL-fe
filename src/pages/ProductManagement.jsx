@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { Plus, Edit, Trash2, Search, Filter, CheckCircle, XCircle } from 'lucide-react';
 import API from '../api';
 import AddProductModal from '../components/AddProductModal';
 
 const ProductManagement = () => {
+    const { user } = useSelector((state) => state.auth);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -18,7 +20,8 @@ const ProductManagement = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const response = await API.get('/products/my-products');
+            const endpoint = '/products/my-products';
+            const response = await API.get(endpoint);
             setProducts(response.data);
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -40,6 +43,42 @@ const ProductManagement = () => {
         } catch (error) {
             console.error('Error deleting product:', error);
             alert('Failed to delete product');
+        }
+    };
+
+    const handleApprove = async (productId) => {
+        if (!window.confirm('Are you sure you want to approve this product?')) {
+            return;
+        }
+
+        try {
+            await API.put(`/products/${productId}`, {
+                approvalStatus: 'APPROVED',
+                status: 'ACTIVE'
+            });
+            alert('Product approved successfully');
+            fetchProducts();
+        } catch (error) {
+            console.error('Error approving product:', error);
+            alert('Failed to approve product');
+        }
+    };
+
+    const handleReject = async (productId) => {
+        if (!window.confirm('Are you sure you want to reject this product?')) {
+            return;
+        }
+
+        try {
+            await API.put(`/products/${productId}`, {
+                approvalStatus: 'REJECTED',
+                status: 'INACTIVE'
+            });
+            alert('Product rejected');
+            fetchProducts();
+        } catch (error) {
+            console.error('Error rejecting product:', error);
+            alert('Failed to reject product');
         }
     };
 
@@ -68,6 +107,15 @@ const ProductManagement = () => {
             INACTIVE: 'bg-gray-100 text-gray-800'
         };
         return colors[status] || colors.ACTIVE;
+    };
+
+    const getApprovalBadge = (status) => {
+        const colors = {
+            APPROVED: 'bg-blue-100 text-blue-800',
+            PENDING: 'bg-orange-100 text-orange-800',
+            REJECTED: 'bg-red-100 text-red-800'
+        };
+        return colors[status] || 'bg-gray-100 text-gray-800';
     };
 
     return (
@@ -136,10 +184,11 @@ const ProductManagement = () => {
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Code</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price Range</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MOQ</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -166,6 +215,11 @@ const ProductManagement = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-mono text-gray-900">
+                                                {product.sku || `ID-${product._id.slice(-6).toUpperCase()}`}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-gray-900">{product.category}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -176,24 +230,46 @@ const ProductManagement = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">{product.moq} pcs</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(product.status)}`}>
                                                 {product.status}
                                             </span>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getApprovalBadge(product.approvalStatus || 'APPROVED')}`}>
+                                                {product.approvalStatus || 'APPROVED'}
+                                            </span>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div className="flex gap-2">
+                                                {user?.role === 'ADMIN' && product.approvalStatus === 'PENDING' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleApprove(product._id)}
+                                                            className="text-green-600 hover:text-green-800"
+                                                            title="Approve"
+                                                        >
+                                                            <CheckCircle size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleReject(product._id)}
+                                                            className="text-red-500 hover:text-red-700"
+                                                            title="Reject"
+                                                        >
+                                                            <XCircle size={18} />
+                                                        </button>
+                                                    </>
+                                                )}
                                                 <button
                                                     onClick={() => handleEdit(product)}
                                                     className="text-primary hover:text-primary/80"
+                                                    title="Edit"
                                                 >
                                                     <Edit size={18} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(product._id)}
                                                     className="text-red-600 hover:text-red-800"
+                                                    title="Delete"
                                                 >
                                                     <Trash2 size={18} />
                                                 </button>
