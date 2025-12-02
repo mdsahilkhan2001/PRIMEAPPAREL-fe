@@ -4,6 +4,7 @@ import Dashboard from '../pages/Dashboard';
 import UserManagement from '../pages/UserManagement';
 import Settings from '../pages/Settings';
 import ProductManagement from '../pages/ProductManagement';
+import DesignApprovals from '../pages/DesignApprovals';
 
 const AdminRoutes = () => {
     return (
@@ -12,6 +13,7 @@ const AdminRoutes = () => {
                 <Route index element={<Dashboard />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="products" element={<ProductManagement />} />
+                <Route path="design-approvals" element={<DesignApprovals />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="ledger" element={<div className="p-8">Financial Ledger (Coming Soon)</div>} />
                 <Route path="analytics" element={<div className="p-8">Analytics (Coming Soon)</div>} />
