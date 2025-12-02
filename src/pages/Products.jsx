@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Search, Filter, ArrowRight, Star, ShoppingBag, ChevronLeft, ChevronRight, ChevronDown, Loader2 } from 'lucide-react';
+import { Search, Filter, ArrowRight, Star, ShoppingBag, ChevronLeft, ChevronRight, ChevronDown, Loader2, X } from 'lucide-react';
+import { CATEGORY_HIERARCHY } from '../constants/categories';
 
 const Products = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialCategory = searchParams.get('cat') || 'all';
-    const [filter, setFilter] = useState(initialCategory);
+    const [category, setCategory] = useState(initialCategory === 'all' ? '' : initialCategory);
+    const [subCategory, setSubCategory] = useState(searchParams.get('subCategory') || '');
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searching, setSearching] = useState(false);
@@ -33,7 +35,8 @@ const Products = () => {
             const { data } = await axios.get('/api/products', {
                 params: {
                     search: debouncedSearch,
-                    category: filter,
+                    category: category || 'all',
+                    subCategory,
                     sort: sortBy,
                     page: currentPage,
                     limit: itemsPerPage
@@ -48,7 +51,7 @@ const Products = () => {
             setLoading(false);
             setSearching(false);
         }
-    }, [debouncedSearch, filter, sortBy, currentPage]);
+    }, [debouncedSearch, category, subCategory, sortBy, currentPage]);
 
     useEffect(() => {
         fetchProducts();
@@ -59,15 +62,9 @@ const Products = () => {
         if (currentPage !== 1) {
             setCurrentPage(1);
         }
-    }, [filter, debouncedSearch, sortBy]);
+    }, [category, subCategory, debouncedSearch, sortBy]);
 
-    const categories = [
-        { id: 'all', label: 'All Collections' },
-        { id: 'kaftan', label: 'Kaftans' },
-        { id: 'beachwear', label: 'Beachwear' },
-        { id: 'resort', label: 'Resort Wear' },
-        { id: 'loungewear', label: 'Loungewear' },
-    ];
+    // Categories are now imported from constants
 
     const sortOptions = [
         { value: 'newest', label: 'Newest Arrivals' },
@@ -129,19 +126,57 @@ const Products = () => {
                 {/* Controls Bar */}
                 <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-10 sticky top-20 z-30 bg-secondary/95 backdrop-blur-sm py-4 -mx-4 px-4 border-b border-slate-200/50">
                     {/* Filters */}
-                    <div className="flex flex-wrap justify-center gap-2">
-                        {categories.map((cat) => (
-                            <button
-                                key={cat.id}
-                                onClick={() => setFilter(cat.id)}
-                                className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${filter === cat.id
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/20 transform -translate-y-0.5'
-                                    : 'bg-white text-slate-600 border border-slate-200 hover:border-accent hover:text-accent'
-                                    }`}
+                    {/* Filters */}
+                    <div className="flex flex-wrap items-center gap-4">
+                        {/* Category Select */}
+                        <div className="relative">
+                            <select
+                                value={category}
+                                onChange={(e) => {
+                                    setCategory(e.target.value);
+                                    setSubCategory('');
+                                }}
+                                className="appearance-none bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-accent/50 cursor-pointer hover:border-accent transition-colors text-sm font-medium min-w-[150px]"
                             >
-                                {cat.label}
+                                <option value="">All Categories</option>
+                                {Object.keys(CATEGORY_HIERARCHY).map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                        </div>
+
+                        {/* Sub Category Select */}
+                        {category && (
+                            <div className="relative animate-in fade-in slide-in-from-left-4 duration-300">
+                                <select
+                                    value={subCategory}
+                                    onChange={(e) => {
+                                        setSubCategory(e.target.value);
+                                    }}
+                                    className="appearance-none bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-accent/50 cursor-pointer hover:border-accent transition-colors text-sm font-medium min-w-[150px]"
+                                >
+                                    <option value="">All Sub Categories</option>
+                                    {CATEGORY_HIERARCHY[category] && CATEGORY_HIERARCHY[category].map(sub => (
+                                        <option key={sub} value={sub}>{sub}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            </div>
+                        )}
+
+                        {(category || subCategory) && (
+                            <button
+                                onClick={() => {
+                                    setCategory('');
+                                    setSubCategory('');
+                                }}
+                                className="text-slate-400 hover:text-red-500 transition-colors p-2"
+                                title="Clear Filters"
+                            >
+                                <X size={20} />
                             </button>
-                        ))}
+                        )}
                     </div>
 
                     {/* Sort Dropdown */}
@@ -189,11 +224,17 @@ const Products = () => {
                                                 e.target.src = 'https://via.placeholder.com/400?text=No+Image';
                                             }}
                                         />
-                                        {/* Badge */}
+                                        {/* MOQ Badge */}
                                         <div className="absolute top-4 left-4">
                                             <span className="bg-white/90 backdrop-blur-sm text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
                                                 MOQ: {product.moq}
                                             </span>
+                                        </div>
+                                        {/* Item Code Banner */}
+                                        <div className="absolute bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm py-3 px-4">
+                                            <p className="text-white text-center text-base font-bold tracking-wide">
+                                                Item Code - {product.sku || `ID-${product._id.slice(-6).toUpperCase()}`}
+                                            </p>
                                         </div>
                                     </Link>
 
@@ -271,8 +312,8 @@ const Products = () => {
                                         key={idx}
                                         onClick={() => setCurrentPage(idx + 1)}
                                         className={`w-10 h-10 rounded-full font-medium transition-all ${currentPage === idx + 1
-                                                ? 'bg-primary text-white shadow-lg transform -translate-y-1'
-                                                : 'bg-white text-slate-600 border border-slate-200 hover:border-accent hover:text-accent'
+                                            ? 'bg-primary text-white shadow-lg transform -translate-y-1'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:border-accent hover:text-accent'
                                             }`}
                                     >
                                         {idx + 1}
@@ -297,7 +338,7 @@ const Products = () => {
                         <h3 className="text-xl font-bold text-primary mb-2">No products found</h3>
                         <p className="text-slate-500 mb-6">Try adjusting your search or filter to find what you're looking for.</p>
                         <button
-                            onClick={() => { setFilter('all'); setSearchTerm(''); setSortBy('newest'); }}
+                            onClick={() => { setCategory(''); setSubCategory(''); setSearchTerm(''); setSortBy('newest'); }}
                             className="btn btn-outline border-slate-200 text-slate-600 hover:border-accent hover:text-accent px-8 py-3 rounded-full"
                         >
                             Clear Filters

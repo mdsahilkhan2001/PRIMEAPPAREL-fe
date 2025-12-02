@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { logout, reset } from '../redux/slices/authSlice';
 import {
     LayoutDashboard, Users, Calculator, FileText, ShoppingCart,
-    Settings, LogOut, Package, ClipboardCheck, Palette, File
+    Settings, LogOut, Package, ClipboardCheck, Palette, File, Plus
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 
@@ -47,6 +47,8 @@ const DashboardLayout = () => {
     } else if (user?.role === 'DESIGNER') {
         menuItems = [
             { name: 'Dashboard', path: '/designer', icon: LayoutDashboard },
+            { name: 'Products', path: '/designer/products', icon: Package },
+            { name: 'Upload Design', path: '/designer/upload', icon: Plus },
             { name: 'Customizations', path: '/designer/customizations', icon: Palette },
             { name: 'Approvals', path: '/designer/approvals', icon: ClipboardCheck },
             { name: 'Tech Packs', path: '/designer/techpacks', icon: File },

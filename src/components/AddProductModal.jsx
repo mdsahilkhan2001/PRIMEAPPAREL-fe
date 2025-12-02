@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { X, Upload, Plus, Minus, Check } from 'lucide-react';
 import API from '../api';
+import { CATEGORY_HIERARCHY } from '../constants/categories';
 
 const AddProductModal = ({ isOpen, onClose, product }) => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
+        sku: '',
         description: '',
         category: '',
         subCategory: '',
@@ -24,6 +26,17 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
             feature: '',
             origin: 'India'
         },
+        costing: {
+            fabricCost: '',
+            cmCost: '',
+            trimCost: '',
+            overheadCost: '',
+            hsCode: '',
+            packagingSpecs: '',
+            toleranceRule: '',
+            complianceNeeded: false,
+            aqlStandard: '2.5'
+        },
         status: 'ACTIVE'
     });
     const [imageFiles, setImageFiles] = useState([]);
@@ -35,31 +48,34 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
         if (product) {
             setFormData({
                 name: product.name || '',
+                sku: product.sku || '',
                 description: product.description || '',
                 category: product.category || '',
                 subCategory: product.subCategory || '',
                 images: product.images || [],
-                video: product.video || null,
-                priceTiers: product.priceTiers?.map(tier => ({
-                    minQty: tier.minQty ?? 0,
-                    maxQty: tier.maxQty ?? null,
-                    price: tier.price ?? 0
-                })) || [{ minQty: 100, maxQty: 500, price: 0 }],
-                colors: product.colors?.map(color => ({
-                    name: color.name || '',
-                    hex: color.hex || '#000000',
-                    image: color.image || ''
-                })) || [{ name: '', hex: '#000000', image: '' }],
+                priceTiers: product.priceTiers || [{ minQty: 100, maxQty: 500, price: 0 }],
+                colors: product.colors || [{ name: '', hex: '#000000', image: '' }],
                 sizes: product.sizes || [],
                 moq: product.moq || 100,
                 leadTime: product.leadTime || '',
                 customization: product.customization || [],
-                specifications: {
-                    material: product.specifications?.material || '',
-                    fabricType: product.specifications?.fabricType || '',
-                    technics: product.specifications?.technics || '',
-                    feature: product.specifications?.feature || '',
-                    origin: product.specifications?.origin || 'India'
+                specifications: product.specifications || {
+                    material: '',
+                    fabricType: '',
+                    technics: '',
+                    feature: '',
+                    origin: 'India'
+                },
+                costing: product.costing || {
+                    fabricCost: '',
+                    cmCost: '',
+                    trimCost: '',
+                    overheadCost: '',
+                    hsCode: '',
+                    packagingSpecs: '',
+                    toleranceRule: '',
+                    complianceNeeded: false,
+                    aqlStandard: '2.5'
                 },
                 status: product.status || 'ACTIVE'
             });
@@ -77,6 +93,13 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
         setFormData(prev => ({
             ...prev,
             specifications: { ...prev.specifications, [field]: value }
+        }));
+    };
+
+    const handleCostingChange = (field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            costing: { ...prev.costing, [field]: value }
         }));
     };
 
@@ -234,6 +257,10 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
             }
 
             // Add other data as JSON string for complex objects
+            console.log('=== FORM DATA BEFORE SUBMIT ===');
+            console.log('SKU:', formData.sku);
+            console.log('All formData:', formData);
+
             Object.keys(formData).forEach(key => {
                 if (key !== 'images' && key !== 'video') {
                     if (typeof formData[key] === 'object') {
@@ -241,6 +268,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                     } else {
                         submitData.append(key, formData[key]);
                     }
+                    console.log(`Appended ${key}:`, formData[key]);
                 }
             });
 
@@ -279,7 +307,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
     const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Free Size'];
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" >
             <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
                 {/* Header */}
                 <div className="p-6 border-b border-gray-200 flex justify-between items-center">
@@ -313,16 +341,30 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                    required
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Item Code / Design No. *</label>
+                                    <input
+                                        type="text"
+                                        name="sku"
+                                        value={formData.sku}
+                                        onChange={handleInputChange}
+                                        placeholder="e.g. D.no.103"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        required
+                                    />
+                                </div>
                             </div>
 
                             <div>
@@ -343,12 +385,18 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                     <select
                                         name="category"
                                         value={formData.category}
-                                        onChange={handleInputChange}
+                                        onChange={(e) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                category: e.target.value,
+                                                subCategory: ''
+                                            }));
+                                        }}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                                         required
                                     >
                                         <option value="">Select Category</option>
-                                        {categories.map(cat => (
+                                        {Object.keys(CATEGORY_HIERARCHY).map(cat => (
                                             <option key={cat} value={cat}>{cat}</option>
                                         ))}
                                     </select>
@@ -356,14 +404,21 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Sub Category *</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="subCategory"
                                         value={formData.subCategory}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                                         required
-                                    />
+                                        disabled={!formData.category}
+                                    >
+                                        <option value="">Select Sub Category</option>
+                                        {formData.category && CATEGORY_HIERARCHY[formData.category] &&
+                                            CATEGORY_HIERARCHY[formData.category].map(sub => (
+                                                <option key={sub} value={sub}>{sub}</option>
+                                            ))
+                                        }
+                                    </select>
                                 </div>
                             </div>
 
@@ -734,6 +789,8 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                             </div>
                         </div>
                     )}
+
+
                 </form>
 
                 {/* Footer */}
@@ -761,7 +818,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                             disabled={loading}
                             className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Saving...' : product ? 'Update Product' : 'Create Product'}
+                            {loading ? 'Saving...' : product ? 'Update Product' : 'Add Product'}
                         </button>
                     )}
                 </div>
@@ -771,4 +828,3 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
 };
 
 export default AddProductModal;
-

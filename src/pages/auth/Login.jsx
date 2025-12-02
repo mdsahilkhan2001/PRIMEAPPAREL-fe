@@ -52,9 +52,14 @@ const Login = () => {
                 }
             }, 1000);
         }
+    }, [user, isSuccess, navigate, location.state]);
 
-        dispatch(reset());
-    }, [user, isError, isSuccess, message, navigate, dispatch, location.state]);
+    // Clear state on unmount
+    useEffect(() => {
+        return () => {
+            dispatch(reset());
+        };
+    }, [dispatch]);
 
     const onChange = (e) => {
         setFormData((prevState) => ({
@@ -141,7 +146,7 @@ const Login = () => {
                                     value={email}
                                     onChange={onChange}
                                     required
-                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all ${isError && message === 'User not found' ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
                                     placeholder="Email address"
                                 />
                             </div>
@@ -156,7 +161,7 @@ const Login = () => {
                                     value={password}
                                     onChange={onChange}
                                     required
-                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all ${isError && message === 'Password is wrong' ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
                                     placeholder="Password"
                                 />
                             </div>

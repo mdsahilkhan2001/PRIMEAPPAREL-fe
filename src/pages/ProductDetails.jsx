@@ -151,8 +151,8 @@ const ProductDetails = () => {
                                         setMediaTab('photos');
                                     }}
                                     className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 ${activeImage === index && mediaTab === 'photos'
-                                            ? 'border-accent ring-2 ring-accent/20 scale-105'
-                                            : 'border-slate-200 hover:border-accent/50'
+                                        ? 'border-accent ring-2 ring-accent/20 scale-105'
+                                        : 'border-slate-200 hover:border-accent/50'
                                         }`}
                                 >
                                     <img
@@ -171,8 +171,8 @@ const ProductDetails = () => {
                                 <button
                                     onClick={() => setMediaTab('video')}
                                     className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 relative flex items-center justify-center bg-black ${mediaTab === 'video'
-                                            ? 'border-accent ring-2 ring-accent/20 scale-105'
-                                            : 'border-slate-200 hover:border-accent/50'
+                                        ? 'border-accent ring-2 ring-accent/20 scale-105'
+                                        : 'border-slate-200 hover:border-accent/50'
                                         }`}
                                 >
                                     <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -197,8 +197,8 @@ const ProductDetails = () => {
                                 <button
                                     onClick={() => setMediaTab('photos')}
                                     className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${mediaTab === 'photos'
-                                            ? 'text-accent border-b-2 border-accent'
-                                            : 'text-slate-500 hover:text-slate-700'
+                                        ? 'text-accent border-b-2 border-accent'
+                                        : 'text-slate-500 hover:text-slate-700'
                                         }`}
                                 >
                                     Photos
@@ -207,8 +207,8 @@ const ProductDetails = () => {
                                     <button
                                         onClick={() => setMediaTab('video')}
                                         className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${mediaTab === 'video'
-                                                ? 'text-accent border-b-2 border-accent'
-                                                : 'text-slate-500 hover:text-slate-700'
+                                            ? 'text-accent border-b-2 border-accent'
+                                            : 'text-slate-500 hover:text-slate-700'
                                             }`}
                                     >
                                         Video
@@ -302,7 +302,14 @@ const ProductDetails = () => {
                     {/* Right Column: Product Info */}
                     <div className="lg:col-span-6">
                         <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold text-primary mb-4 leading-tight">{product.name}</h1>
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold text-primary mb-2 leading-tight">{product.name}</h1>
+                            {product.sku && (
+                                <div className="inline-block bg-black/90 text-white px-4 py-2 rounded-lg mb-4">
+                                    <p className="text-sm font-bold tracking-wide">
+                                        Item Code - {product.sku}
+                                    </p>
+                                </div>
+                            )}
 
                             <div className="flex flex-wrap items-center gap-4 mb-6">
                                 <div className="flex items-center text-yellow-400 bg-yellow-50 px-3 py-1.5 rounded-full">
