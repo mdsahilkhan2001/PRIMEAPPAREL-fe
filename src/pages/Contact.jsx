@@ -18,7 +18,8 @@ const Contact = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-primary mb-2">Visit Factory</h3>
-                                <p className="text-gray-600">123 Fashion Export Zone, Industrial Area,<br />New Delhi, India - 110020</p>
+                                <p className="text-gray-600">Office: Minara Masjid, Mohammad Ali Road, Mumbai – 400003
+                                    <br />Factory: Sion, Mumbai</p>
                             </div>
                         </div>
 
@@ -28,7 +29,7 @@ const Contact = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-primary mb-2">Call Us</h3>
-                                <p className="text-gray-600">+91 98765 43210</p>
+                                <p className="text-gray-600">+91 90000 12345</p>
                                 <p className="text-gray-500 text-sm">Mon-Sat, 9am - 6pm IST</p>
                             </div>
                         </div>
@@ -39,8 +40,8 @@ const Contact = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-primary mb-2">Email Us</h3>
-                                <p className="text-gray-600">exports@primeapparel.com</p>
-                                <p className="text-gray-600">sales@primeapparel.com</p>
+                                <p className="text-gray-600">info@primeapparelexports.com</p>
+                                {/* <p className="text-gray-600">sales@primeapparel.com</p> */}
                             </div>
                         </div>
                     </div>
@@ -62,7 +63,7 @@ const Contact = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
                             <textarea rows="4" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all" placeholder="How can we help you?"></textarea>
                         </div>
-                        <button type="submit" className="w-full bg-accent text-primary font-bold py-4 rounded-lg hover:bg-yellow-500 transition-all shadow-lg">
+                        <button type="submit" className="w-full bg-accent text-primary font-bold py-4 rounded-lg hover:bg-yellow-500 transition-all shadow-lg cursor-pointer">
                             Send Message
                         </button>
                     </form>
