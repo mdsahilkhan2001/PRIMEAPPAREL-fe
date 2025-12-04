@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { Search, Filter, ArrowRight, Star, ShoppingBag, ChevronLeft, ChevronRight, ChevronDown, Loader2, X } from 'lucide-react';
 import { CATEGORY_HIERARCHY } from '../constants/categories';
+import { getImageUrl } from '../config';
 
 const Products = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -216,12 +217,12 @@ const Products = () => {
                                     {/* Clickable Image Area */}
                                     <Link to={`/products/${product._id}`} className="block relative h-[400px] overflow-hidden bg-gray-100 cursor-pointer">
                                         <img
-                                            src={product.images && product.images[0] ? `http://localhost:5000${encodeURI(product.images[0])}` : '/placeholder.jpg'}
+                                            src={getImageUrl(product.images && product.images[0])}
                                             alt={product.name}
                                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             onError={(e) => {
                                                 e.target.onerror = null;
-                                                e.target.src = 'https://via.placeholder.com/400?text=No+Image';
+                                                e.target.src = '/placeholder.svg';
                                             }}
                                         />
                                         {/* MOQ Badge */}

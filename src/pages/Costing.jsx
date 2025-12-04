@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import API from '../api';
 
 const Costing = () => {
     const [formData, setFormData] = useState({
@@ -57,7 +58,7 @@ const Costing = () => {
 
     const handleSave = async () => {
         try {
-            await axios.post('http://localhost:5000/api/costings', formData);
+            await API.post('/costings', formData);
             alert('Costing saved successfully!');
         } catch (error) {
             console.error(error);

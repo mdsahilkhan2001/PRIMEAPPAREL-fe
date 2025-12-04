@@ -5,6 +5,7 @@ import axios from 'axios';
 import { ChevronRight, ChevronLeft, Star, MessageCircle, Send, ShoppingCart, Heart, Share2, PenTool, ZoomIn } from 'lucide-react';
 import InquiryModal from '../components/InquiryModal';
 import CustomizationModal from '../components/customization/CustomizationModal';
+import { getImageUrl, getFileUrl } from '../config';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -156,12 +157,12 @@ const ProductDetails = () => {
                                         }`}
                                 >
                                     <img
-                                        src={`http://localhost:5000${encodeURI(img)}`}
+                                        src={getImageUrl(img)}
                                         alt={`Thumbnail ${index + 1}`}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
                                             e.target.onerror = null;
-                                            e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                                            e.target.src = '/placeholder.svg';
                                         }}
                                     />
                                 </button>
@@ -183,7 +184,7 @@ const ProductDetails = () => {
                                         </div>
                                     </div>
                                     <video
-                                        src={`http://localhost:5000${encodeURI(product.video)}`}
+                                        src={getFileUrl(product.video)}
                                         className="w-full h-full object-cover opacity-60"
                                     />
                                 </button>
@@ -251,7 +252,7 @@ const ProductDetails = () => {
 
                                 {mediaTab === 'video' && product.video ? (
                                     <video
-                                        src={`http://localhost:5000${encodeURI(product.video)}`}
+                                        src={getFileUrl(product.video)}
                                         controls
                                         autoPlay
                                         className="w-full h-full object-contain bg-black"
@@ -259,13 +260,13 @@ const ProductDetails = () => {
                                 ) : (
                                     <>
                                         <img
-                                            src={`http://localhost:5000${encodeURI(product.images[activeImage] || product.images[0])}`}
+                                            src={getImageUrl(product.images[activeImage] || product.images[0])}
                                             alt={product.name}
                                             className={`w-full h-full object-contain p-4 transition-all duration-500 ${imageZoom ? 'scale-150' : 'group-hover:scale-105'
                                                 }`}
                                             onError={(e) => {
                                                 e.target.onerror = null;
-                                                e.target.src = 'https://via.placeholder.com/600?text=No+Image';
+                                                e.target.src = '/placeholder.svg';
                                             }}
                                         />
 

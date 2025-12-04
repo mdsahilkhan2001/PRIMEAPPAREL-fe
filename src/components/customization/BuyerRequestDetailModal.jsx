@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, XCircle, AlertCircle, User, DollarSign } from 'lucide-react';
 import axios from '../../api';
+import { getImageUrl } from '../../config';
 
 const BuyerRequestDetailModal = ({ request, isOpen, onClose, onUpdate }) => {
     const [loading, setLoading] = useState(false);
@@ -46,7 +47,7 @@ const BuyerRequestDetailModal = ({ request, isOpen, onClose, onUpdate }) => {
                             {/* Product Info */}
                             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
                                 <img
-                                    src={`http://localhost:5000${request.product.images[0]}`}
+                                    src={getImageUrl(request.product.images[0])}
                                     alt={request.product.name}
                                     className="w-16 h-16 object-cover rounded-md"
                                 />

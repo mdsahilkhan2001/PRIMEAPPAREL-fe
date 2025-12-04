@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Edit, Eye, Filter, Search } from 'lucide-react';
 import API from '../api';
 import AddProductModal from '../components/AddProductModal';
+import { getImageUrl } from '../config';
 
 const DesignApprovals = () => {
     const [designs, setDesigns] = useState([]);
@@ -160,7 +161,7 @@ const DesignApprovals = () => {
                                                 <div className="h-10 w-10 flex-shrink-0">
                                                     <img
                                                         className="h-10 w-10 rounded-lg object-cover bg-gray-100"
-                                                        src={design.images && design.images[0] ? `http://localhost:5000${encodeURI(design.images[0])}` : '/placeholder.jpg'}
+                                                        src={design.images && design.images[0] ? getImageUrl(design.images[0]) : '/placeholder.jpg'}
                                                         alt={design.name}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
