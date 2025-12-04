@@ -162,7 +162,7 @@ const ProductDetails = () => {
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
                                             e.target.onerror = null;
-                                            e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                                            e.target.src = '/placeholder.svg';
                                         }}
                                     />
                                 </button>
@@ -266,7 +266,7 @@ const ProductDetails = () => {
                                                 }`}
                                             onError={(e) => {
                                                 e.target.onerror = null;
-                                                e.target.src = 'https://via.placeholder.com/600?text=No+Image';
+                                                e.target.src = '/placeholder.svg';
                                             }}
                                         />
 

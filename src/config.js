@@ -6,8 +6,13 @@ export const BACKEND_URL = API_BASE_URL.replace('/api', '');
 
 // Helper function to get full image URL
 export const getImageUrl = (imagePath) => {
-    if (!imagePath) return '/placeholder.jpg';
+    if (!imagePath) return '/placeholder.svg';
     if (imagePath.startsWith('http')) return imagePath;
+    // If the path doesn't start with /uploads/, add it
+    if (!imagePath.startsWith('/uploads/')) {
+        const finalUrl = `${BACKEND_URL}/uploads/${imagePath}`;
+        return finalUrl;
+    }
     return `${BACKEND_URL}${imagePath}`;
 };
 
@@ -15,5 +20,9 @@ export const getImageUrl = (imagePath) => {
 export const getFileUrl = (filePath) => {
     if (!filePath) return null;
     if (filePath.startsWith('http')) return filePath;
+    // If the path doesn't start with /uploads/, add it
+    if (!filePath.startsWith('/uploads/')) {
+        return `${BACKEND_URL}/uploads/${filePath}`;
+    }
     return `${BACKEND_URL}${filePath}`;
 };

@@ -222,7 +222,7 @@ const Products = () => {
                                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             onError={(e) => {
                                                 e.target.onerror = null;
-                                                e.target.src = 'https://via.placeholder.com/400?text=No+Image';
+                                                e.target.src = '/placeholder.svg';
                                             }}
                                         />
                                         {/* MOQ Badge */}

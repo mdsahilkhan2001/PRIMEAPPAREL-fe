@@ -21,7 +21,6 @@ import {
 const Services = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    // Hero images for services page
     // Hero images for services page - using local images
     const SERVICES_HERO_IMAGES = [
         '/service-img/ser1.jpg',
@@ -48,14 +47,13 @@ const Services = () => {
                 {SERVICES_HERO_IMAGES.map((img, idx) => (
                     <div
                         key={idx}
-                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-40' : 'opacity-0'
+                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-60' : 'opacity-0'
                             }`}
                         style={{ backgroundImage: `url('${img}')` }}
                     />
                 ))}
-                {/* Gradient overlays */}
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-transparent opacity-80" />
+                {/* Simple overlay for text contrast */}
+                <div className="absolute inset-0 bg-black/30" />
             </div>
 
             {/* Hero content */}

@@ -6,6 +6,7 @@ import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
+import Career from './pages/Career';
 import Inquiry from './pages/Inquiry';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -30,6 +31,7 @@ function App() {
           <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/career" element={<Career />} />
           <Route path="/inquiry" element={<Inquiry />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

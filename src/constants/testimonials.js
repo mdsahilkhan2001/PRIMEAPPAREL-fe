@@ -58,26 +58,26 @@ export const TESTIMONIALS = [
 export const FEATURED_CATEGORIES = [
     {
         id: 1,
-        name: "Kaftans for Men",
-        description: "Classic and contemporary designs",
-        image: "/categories/kaftan-men.jpg",
-        link: "/products?cat=kaftan",
+        name: "Kaftans",
+        description: "Elegant and comfortable styles",
+        image: "/categories/kaftan-women.jpg",
+        link: "/products?cat=Kaftans",
         color: "from-slate-600 to-slate-700"
     },
     {
         id: 2,
-        name: "Women's Kaftans",
-        description: "Elegant embroidered styles",
-        image: "/categories/kaftan-women.jpg",
-        link: "/products?cat=kaftan",
-        color: "from-gray-600 to-gray-700"
+        name: "Resort Wear",
+        description: "Premium vacation collections",
+        image: "/categories/resort.jpg",
+        link: "/products?cat=Resort%20Wear",
+        color: "from-slate-700 to-slate-800"
     },
     {
         id: 3,
-        name: "Beachwear",
-        description: "Resort and vacation essentials",
+        name: "Kurtis",
+        description: "Contemporary ethnic styles",
         image: "/categories/beachwear.jpg",
-        link: "/products?cat=beachwear",
+        link: "/products?cat=Kurtis",
         color: "from-slate-500 to-slate-600"
     },
     {
@@ -85,16 +85,16 @@ export const FEATURED_CATEGORIES = [
         name: "Loungewear",
         description: "Comfortable everyday wear",
         image: "/categories/loungewear.jpg",
-        link: "/products?cat=loungewear",
+        link: "/products?cat=Loungewear",
         color: "from-gray-500 to-gray-600"
     },
     {
         id: 5,
-        name: "Resort Wear",
-        description: "Premium vacation collections",
-        image: "/categories/resort.jpg",
-        link: "/products?cat=resort",
-        color: "from-slate-700 to-slate-800"
+        name: "Dresses",
+        description: "Chic dresses for every occasion",
+        image: "/categories/custom.jpg",
+        link: "/products?cat=Dresses",
+        color: "from-gray-700 to-gray-800"
     },
     {
         id: 6,
