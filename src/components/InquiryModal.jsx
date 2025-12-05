@@ -1,19 +1,22 @@
 import React, { useState, useRef } from 'react';
 import { X, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
-import { createLead } from '../api';
+import { useCreateLeadMutation } from '../redux/slices/apiSlice';
+import { getImageUrl } from '../config';
 
 const InquiryModal = ({ product, onClose, user }) => {
+    const [createLead, { isLoading: loading }] = useCreateLeadMutation();
+
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
+        phone: '',
+        countryCode: '+1',
         country: '',
         productType: product?.name || 'Kaftans',
         quantity: product?.moq || '',
-        budget: '',
         message: '',
         referenceImages: []
     });
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const fileInputRef = useRef(null);
@@ -55,19 +58,19 @@ const InquiryModal = ({ product, onClose, user }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError(null);
 
         try {
-            await createLead(formData);
+            await createLead({
+                ...formData,
+                leadType: 'ODM' // Product inquiry from catalog
+            }).unwrap();
             setSuccess(true);
             setTimeout(() => {
                 onClose();
             }, 2000);
         } catch (err) {
             setError('Failed to send inquiry. Please try again.');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -107,10 +110,23 @@ const InquiryModal = ({ product, onClose, user }) => {
                         <form onSubmit={handleSubmit} className="space-y-5">
                             {/* Product Summary */}
                             <div className="flex items-start gap-4 bg-orange-50/50 p-4 rounded-xl border border-orange-100">
-                                <img src={product.images[0]} alt={product.name} className="w-16 h-16 object-cover rounded-lg shadow-sm" />
-                                <div>
+                                <img
+                                    src={getImageUrl(product.images[0])}
+                                    alt={product.name}
+                                    className="w-16 h-16 object-cover rounded-lg shadow-sm"
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = '/placeholder.svg';
+                                    }}
+                                />
+                                <div className="flex-1">
                                     <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">{product.name}</h4>
-                                    <div className="flex items-center gap-2 mt-1">
+                                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                        {product.sku && (
+                                            <span className="text-xs font-bold px-2 py-0.5 bg-black text-white rounded">
+                                                Item Code: {product.sku}
+                                            </span>
+                                        )}
                                         <span className="text-xs font-medium px-2 py-0.5 bg-white text-orange-600 rounded border border-orange-200">
                                             MOQ: {product.moq}
                                         </span>
@@ -145,6 +161,88 @@ const InquiryModal = ({ product, onClose, user }) => {
                                 </div>
                             </div>
 
+                            {/* Phone Number with Country Code */}
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Phone Number *</label>
+                                <div className="flex gap-2">
+                                    <select
+                                        name="countryCode"
+                                        value={formData.countryCode}
+                                        onChange={handleChange}
+                                        className="w-32 px-2 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
+                                    >
+                                        {/* Popular Countries First */}
+                                        <option value="+91">🇮🇳 India +91</option>
+                                        <option value="+971">🇦🇪 UAE +971</option>
+                                        <option value="+44">🇬🇧 UK +44</option>
+                                        <option value="+1">🇺🇸 USA +1</option>
+                                        <option value="+61">🇦🇺 Australia +61</option>
+                                        <option value="+7">🇷🇺 Russia +7</option>
+
+                                        {/* Middle East */}
+                                        <option value="+966">🇸🇦 Saudi Arabia +966</option>
+                                        <option value="+974">🇶🇦 Qatar +974</option>
+                                        <option value="+968">🇴🇲 Oman +968</option>
+                                        <option value="+965">🇰🇼 Kuwait +965</option>
+                                        <option value="+973">🇧🇭 Bahrain +973</option>
+                                        <option value="+962">🇯🇴 Jordan +962</option>
+                                        <option value="+961">🇱🇧 Lebanon +961</option>
+                                        <option value="+90">🇹🇷 Turkey +90</option>
+
+                                        {/* Europe */}
+                                        <option value="+33">🇫🇷 France +33</option>
+                                        <option value="+49">🇩🇪 Germany +49</option>
+                                        <option value="+39">🇮🇹 Italy +39</option>
+                                        <option value="+34">🇪🇸 Spain +34</option>
+                                        <option value="+31">🇳🇱 Netherlands +31</option>
+                                        <option value="+41">🇨🇭 Switzerland +41</option>
+                                        <option value="+43">🇦🇹 Austria +43</option>
+                                        <option value="+32">🇧🇪 Belgium +32</option>
+
+                                        {/* Asia Pacific */}
+                                        <option value="+86">🇨🇳 China +86</option>
+                                        <option value="+81">🇯🇵 Japan +81</option>
+                                        <option value="+82">🇰🇷 South Korea +82</option>
+                                        <option value="+65">🇸🇬 Singapore +65</option>
+                                        <option value="+60">🇲🇾 Malaysia +60</option>
+                                        <option value="+66">🇹🇭 Thailand +66</option>
+                                        <option value="+84">🇻🇳 Vietnam +84</option>
+                                        <option value="+63">🇵🇭 Philippines +63</option>
+                                        <option value="+62">🇮🇩 Indonesia +62</option>
+
+                                        {/* South Asia */}
+                                        <option value="+92">🇵🇰 Pakistan +92</option>
+                                        <option value="+880">🇧🇩 Bangladesh +880</option>
+                                        <option value="+94">🇱🇰 Sri Lanka +94</option>
+                                        <option value="+977">🇳🇵 Nepal +977</option>
+
+                                        {/* Africa */}
+                                        <option value="+27">🇿🇦 South Africa +27</option>
+                                        <option value="+20">🇪🇬 Egypt +20</option>
+                                        <option value="+234">🇳🇬 Nigeria +234</option>
+                                        <option value="+254">🇰🇪 Kenya +254</option>
+
+                                        {/* Americas */}
+                                        <option value="+1">🇨🇦 Canada +1</option>
+                                        <option value="+52">🇲🇽 Mexico +52</option>
+                                        <option value="+55">🇧🇷 Brazil +55</option>
+                                        <option value="+54">🇦🇷 Argentina +54</option>
+                                    </select>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        placeholder="1234567890"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        required
+                                        className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm"
+                                        pattern="[0-9]{6,15}"
+                                        title="Please enter a valid phone number (6-15 digits)"
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">Select your country code and enter phone number</p>
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Country *</label>
@@ -171,29 +269,16 @@ const InquiryModal = ({ product, onClose, user }) => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Quantity</label>
-                                    <input
-                                        type="number"
-                                        name="quantity"
-                                        placeholder="e.g. 100"
-                                        value={formData.quantity}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Target Budget (USD)</label>
-                                    <input
-                                        type="text"
-                                        name="budget"
-                                        placeholder="e.g. $15-20 per piece"
-                                        value={formData.budget}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm"
-                                    />
-                                </div>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Quantity (Optional)</label>
+                                <input
+                                    type="number"
+                                    name="quantity"
+                                    placeholder="e.g. 100"
+                                    value={formData.quantity}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm"
+                                />
                             </div>
 
                             {/* Reference Images */}

@@ -1,13 +1,33 @@
 import { useState, useEffect } from 'react';
 import { X, Upload, Plus, Minus, Check, Crop } from 'lucide-react';
 import ImageCropper from './ImageCropper';
-import API from '../api';
+import Toast from './Toast';
+import { useCreateProductMutation, useUpdateProductMutation } from '../redux/slices/apiSlice';
 import { CATEGORY_HIERARCHY } from '../constants/categories';
 import { getImageUrl, getFileUrl } from '../config';
 
+// VIBGYOR Color Presets
+const VIBGYOR_COLORS = [
+    { name: 'Red', hex: '#FF0000' },
+    { name: 'Orange', hex: '#FF7F00' },
+    { name: 'Yellow', hex: '#FFFF00' },
+    { name: 'Green', hex: '#00FF00' },
+    { name: 'Blue', hex: '#0000FF' },
+    { name: 'Indigo', hex: '#4B0082' },
+    { name: 'Violet', hex: '#9400D3' },
+    { name: 'Black', hex: '#000000' },
+    { name: 'White', hex: '#FFFFFF' },
+    { name: 'Pink', hex: '#FFC0CB' },
+    { name: 'Brown', hex: '#8B4513' },
+    { name: 'Grey', hex: '#808080' },
+];
+
 const AddProductModal = ({ isOpen, onClose, product }) => {
     const [step, setStep] = useState(1);
-    const [loading, setLoading] = useState(false);
+    const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
+    const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+    const loading = isCreating || isUpdating;
+
     const [formData, setFormData] = useState({
         name: '',
         sku: '',
@@ -47,6 +67,14 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
     const [videoPreview, setVideoPreview] = useState(null);
     const [croppingImageIndex, setCroppingImageIndex] = useState(null);
     const [cropperOpen, setCropperOpen] = useState(false);
+    const [customizationInput, setCustomizationInput] = useState('');
+    const [showCustomizationInput, setShowCustomizationInput] = useState(false);
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+    const showToast = (message, type = 'success') => {
+        setToast({ show: true, message, type });
+        setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+    };
 
     useEffect(() => {
         if (product) {
@@ -129,7 +157,7 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
         const validFiles = files.filter(file => {
             if (!allowedTypes.includes(file.type)) {
-                alert(`File ${file.name} is not supported. Please use JPG, PNG, or WEBP.`);
+                showToast(`File ${file.name} is not supported. Please use JPG, PNG, or WEBP.`, 'error');
                 return false;
             }
             return true;
@@ -149,12 +177,12 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
         if (!file) return;
 
         if (!file.type.startsWith('video/')) {
-            alert('Please upload a valid video file');
+            showToast('Please upload a valid video file', 'error');
             return;
         }
 
         if (file.size > 50 * 1024 * 1024) { // 50MB limit
-            alert('Video file size should be less than 50MB');
+            showToast('Video file size should be less than 50MB', 'error');
             return;
         }
 
@@ -252,14 +280,35 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
         }));
     };
 
-    const addCustomization = () => {
-        const option = prompt('Enter customization option:');
-        if (option) {
+    const addPresetColor = (presetColor) => {
+        // Check if color already exists by hex code
+        const exists = formData.colors.some(c => c.hex.toLowerCase() === presetColor.hex.toLowerCase());
+        if (!exists) {
             setFormData(prev => ({
                 ...prev,
-                customization: [...prev.customization, option]
+                colors: [...prev.colors, { ...presetColor, image: '' }]
             }));
         }
+    };
+
+    const addCustomization = () => {
+        setShowCustomizationInput(true);
+    };
+
+    const saveCustomization = () => {
+        if (customizationInput.trim()) {
+            setFormData(prev => ({
+                ...prev,
+                customization: [...prev.customization, customizationInput.trim()]
+            }));
+            setCustomizationInput('');
+            setShowCustomizationInput(false);
+        }
+    };
+
+    const cancelCustomization = () => {
+        setCustomizationInput('');
+        setShowCustomizationInput(false);
     };
 
     const removeCustomization = (index) => {
@@ -271,7 +320,6 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
 
         try {
             const submitData = new FormData();
@@ -311,23 +359,21 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
             }
 
             if (product) {
-                await API.put(`/products/${product._id}`, submitData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                alert('Product updated successfully!');
+                // updateProduct expects { id, ...rest } where rest properties become the body
+                await updateProduct({ id: product._id, formData: submitData }).unwrap();
+                showToast('Product updated successfully!', 'success');
             } else {
-                await API.post('/products', submitData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                alert('Product created successfully!');
+                await createProduct(submitData).unwrap();
+                showToast('Product created successfully!', 'success');
             }
 
-            onClose();
+            // Delay closing the modal so toast is visible
+            setTimeout(() => {
+                onClose();
+            }, 2000);
         } catch (error) {
             console.error('Error saving product:', error);
-            alert(error.response?.data?.message || 'Failed to save product');
-        } finally {
-            setLoading(false);
+            showToast(error.data?.message || error.message || 'Failed to save product', 'error');
         }
     };
 
@@ -562,32 +608,68 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                         <Plus size={18} /> Add Color
                                     </button>
                                 </div>
-                                {formData.colors.map((color, index) => (
-                                    <div key={index} className="flex gap-4 mb-3 items-center">
-                                        <input
-                                            type="text"
-                                            placeholder="Color Name"
-                                            value={color.name ?? ''}
-                                            onChange={(e) => updateColor(index, 'name', e.target.value)}
-                                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                        />
-                                        <input
-                                            type="color"
-                                            value={color.hex ?? '#000000'}
-                                            onChange={(e) => updateColor(index, 'hex', e.target.value)}
-                                            className="w-16 h-10 border border-gray-300 rounded-lg cursor-pointer"
-                                        />
-                                        {formData.colors.length > 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => removeColor(index)}
-                                                className="text-red-500 hover:text-red-700"
-                                            >
-                                                <Minus size={20} />
-                                            </button>
-                                        )}
+
+                                {/* Color Presets */}
+                                <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <p className="text-sm font-medium text-gray-700 mb-3">Quick Select Color Presets:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {VIBGYOR_COLORS.map((presetColor) => {
+                                            const isSelected = formData.colors.some(c => c.hex.toLowerCase() === presetColor.hex.toLowerCase());
+                                            return (
+                                                <button
+                                                    key={presetColor.hex}
+                                                    type="button"
+                                                    onClick={() => addPresetColor(presetColor)}
+                                                    className={`group relative flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${isSelected
+                                                        ? 'border-primary bg-primary/10'
+                                                        : 'border-gray-300 hover:border-primary hover:bg-gray-100'
+                                                        }`}
+                                                    title={`Add ${presetColor.name}`}
+                                                >
+                                                    <div
+                                                        className="w-6 h-6 rounded-md border-2 border-gray-300 shadow-sm"
+                                                        style={{ backgroundColor: presetColor.hex }}
+                                                    />
+                                                    <span className="text-sm font-medium text-gray-700">{presetColor.name}</span>
+                                                    {isSelected && (
+                                                        <Check size={16} className="text-primary" />
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
-                                ))}
+                                </div>
+
+                                {/* Manual Color Inputs */}
+                                <div className="space-y-3">
+                                    <p className="text-sm text-gray-600">Selected Colors:</p>
+                                    {formData.colors.map((color, index) => (
+                                        <div key={index} className="flex gap-4 mb-3 items-center">
+                                            <input
+                                                type="text"
+                                                placeholder="Color Name"
+                                                value={color.name ?? ''}
+                                                onChange={(e) => updateColor(index, 'name', e.target.value)}
+                                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            />
+                                            <input
+                                                type="color"
+                                                value={color.hex ?? '#000000'}
+                                                onChange={(e) => updateColor(index, 'hex', e.target.value)}
+                                                className="w-16 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                                            />
+                                            {formData.colors.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeColor(index)}
+                                                    className="text-red-500 hover:text-red-700"
+                                                >
+                                                    <Minus size={20} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             <div>
@@ -621,6 +703,42 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                         <Plus size={18} /> Add Option
                                     </button>
                                 </div>
+
+                                {/* Inline Input Form */}
+                                {showCustomizationInput && (
+                                    <div className="mb-4 p-4 bg-blue-50 rounded-lg border-2 border-primary/30 animate-fadeIn">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Enter Customization Option:
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={customizationInput}
+                                                onChange={(e) => setCustomizationInput(e.target.value)}
+                                                onKeyPress={(e) => e.key === 'Enter' && saveCustomization()}
+                                                placeholder="e.g., Custom Logo, Embroidery, etc."
+                                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                                autoFocus
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={saveCustomization}
+                                                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={cancelCustomization}
+                                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Display Added Options */}
                                 <div className="flex flex-wrap gap-2">
                                     {formData.customization.map((option, index) => (
                                         <span
@@ -637,6 +755,9 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                                             </button>
                                         </span>
                                     ))}
+                                    {formData.customization.length === 0 && !showCustomizationInput && (
+                                        <p className="text-sm text-gray-500 italic">No customization options added yet. Click "Add Option" to add one.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -869,6 +990,15 @@ const AddProductModal = ({ isOpen, onClose, product }) => {
                     image={imagePreviews[croppingImageIndex]}
                     onCrop={handleCropSave}
                     onClose={() => setCropperOpen(false)}
+                />
+            )}
+
+            {/* Toast Notification */}
+            {toast.show && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast({ show: false, message: '', type: 'success' })}
                 />
             )}
         </div>

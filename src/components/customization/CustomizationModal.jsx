@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { X, Upload, Check, ChevronRight, ChevronLeft, Calendar, DollarSign, Info } from 'lucide-react';
-import axios from '../../api';
+import { useCreateCustomizationMutation } from '../../redux/slices/apiSlice';
 import { getImageUrl } from '../../config';
 
 const CustomizationModal = ({ product, isOpen, onClose }) => {
     const { user } = useSelector((state) => state.auth);
     const navigate = useNavigate();
+    
+    // RTK Query mutation
+    const [createCustomization, { isLoading: loading }] = useCreateCustomizationMutation();
 
     const [step, setStep] = useState(1);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
 
@@ -103,11 +105,9 @@ const CustomizationModal = ({ product, isOpen, onClose }) => {
         }
 
         try {
-            setLoading(true);
             setError(null);
 
             const submitData = new FormData();
-            // ... (rest of append logic)
             submitData.append('productId', product._id);
             submitData.append('designType', formData.designType === 'Other' ? customDesignType : formData.designType);
             submitData.append('description', formData.description);
@@ -123,8 +123,8 @@ const CustomizationModal = ({ product, isOpen, onClose }) => {
                 submitData.append('referenceImages', file);
             });
 
-            // Let axios set the Content-Type automatically for FormData
-            await axios.post('/customizations', submitData);
+            // Use RTK Query mutation
+            await createCustomization(submitData).unwrap();
 
             setSuccess(true);
             setTimeout(() => {
@@ -149,9 +149,7 @@ const CustomizationModal = ({ product, isOpen, onClose }) => {
 
         } catch (err) {
             console.error('Customization request error:', err);
-            setError(err.response?.data?.message || 'Failed to submit request');
-        } finally {
-            setLoading(false);
+            setError(err.data?.message || err.message || 'Failed to submit request');
         }
     };
 

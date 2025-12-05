@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { logout, reset } from '../redux/slices/authSlice';
 import {
     LayoutDashboard, Users, Calculator, FileText, ShoppingCart,
-    Settings, LogOut, Package, ClipboardCheck, Palette, File, Plus, CheckCircle
+    Settings, LogOut, Package, ClipboardCheck, Palette, File, Plus, CheckCircle, Inbox, PenTool, MessageSquare
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 
@@ -26,6 +26,7 @@ const DashboardLayout = () => {
     if (user?.role === 'BUYER') {
         menuItems = [
             { name: 'Dashboard', path: '/buyer', icon: LayoutDashboard },
+            { name: 'My Inquiries', path: '/buyer/inquiries', icon: MessageSquare },
             { name: 'Customizations', path: '/buyer/customizations', icon: Palette },
             { name: 'My Orders', path: '/buyer/orders', icon: ShoppingCart },
             { name: 'Track Order', path: '/buyer/track', icon: Package },
@@ -36,12 +37,12 @@ const DashboardLayout = () => {
     } else if (user?.role === 'SELLER') {
         menuItems = [
             { name: 'Dashboard', path: '/seller', icon: LayoutDashboard },
-            { name: 'Customizations', path: '/seller/customizations', icon: Palette },
-            { name: 'Leads', path: '/seller/leads', icon: Users },
+            { name: 'ODM Leads', path: '/seller/odm-leads', icon: Inbox },
+            { name: 'OEM Leads', path: '/seller/customizations', icon: PenTool },
             { name: 'Products', path: '/seller/products', icon: Package },
             { name: 'Costing', path: '/seller/costing', icon: Calculator },
             { name: 'Orders', path: '/seller/orders', icon: ShoppingCart },
-            { name: 'PI Generation', path: '/seller/pi', icon: FileText },
+            { name: 'Documents', path: '/seller/documents', icon: FileText },
             { name: 'Production', path: '/seller/production', icon: ClipboardCheck },
         ];
     } else if (user?.role === 'DESIGNER') {
@@ -50,8 +51,8 @@ const DashboardLayout = () => {
             { name: 'Products', path: '/designer/products', icon: Package },
             { name: 'Upload Design', path: '/designer/upload', icon: Plus },
             { name: 'Customizations', path: '/designer/customizations', icon: Palette },
-            { name: 'Approvals', path: '/designer/approvals', icon: ClipboardCheck },
             { name: 'Tech Packs', path: '/designer/techpacks', icon: File },
+            { name: 'Approvals', path: '/designer/approvals', icon: ClipboardCheck },
             { name: 'ODM Links', path: '/designer/odm', icon: Palette },
         ];
     } else if (user?.role === 'ADMIN') {
@@ -60,6 +61,7 @@ const DashboardLayout = () => {
             { name: 'User Mgmt', path: '/admin/users', icon: Users },
             { name: 'Products', path: '/admin/products', icon: Package },
             { name: 'Design Approvals', path: '/admin/design-approvals', icon: CheckCircle },
+            { name: 'Documents', path: '/admin/documents', icon: FileText },
             { name: 'Ledger', path: '/admin/ledger', icon: Calculator },
             { name: 'Analytics', path: '/admin/analytics', icon: LayoutDashboard },
             { name: 'Settings', path: '/admin/settings', icon: Settings },

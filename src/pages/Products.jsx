@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import { useGetProductsQuery } from '../redux/slices/apiSlice';
 import { Search, Filter, ArrowRight, Star, ShoppingBag, ChevronLeft, ChevronRight, ChevronDown, Loader2, X } from 'lucide-react';
 import { CATEGORY_HIERARCHY } from '../constants/categories';
 import { getImageUrl } from '../config';
@@ -10,14 +10,10 @@ const Products = () => {
     const initialCategory = searchParams.get('cat') || 'all';
     const [category, setCategory] = useState(initialCategory === 'all' ? '' : initialCategory);
     const [subCategory, setSubCategory] = useState(searchParams.get('subCategory') || '');
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searching, setSearching] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [sortBy, setSortBy] = useState('newest');
     const [currentPage, setCurrentPage] = useState(1);
-    const [pagination, setPagination] = useState({ total: 0, pages: 0, page: 1, limit: 12 });
     const itemsPerPage = 12;
 
     // Debounce search term
@@ -29,34 +25,22 @@ const Products = () => {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    // Fetch products from backend
-    const fetchProducts = useCallback(async () => {
-        try {
-            setSearching(true);
-            const { data } = await axios.get('/api/products', {
-                params: {
-                    search: debouncedSearch,
-                    category: category || 'all',
-                    subCategory,
-                    sort: sortBy,
-                    page: currentPage,
-                    limit: itemsPerPage
-                }
-            });
-            setProducts(data.products);
-            setPagination(data.pagination);
-            setLoading(false);
-            setSearching(false);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            setLoading(false);
-            setSearching(false);
-        }
-    }, [debouncedSearch, category, subCategory, sortBy, currentPage]);
+    // Use RTK Query to fetch products
+    const queryParams = useMemo(() => ({
+        search: debouncedSearch,
+        category: category || 'all',
+        subCategory,
+        sort: sortBy,
+        page: currentPage,
+        limit: itemsPerPage
+    }), [debouncedSearch, category, subCategory, sortBy, currentPage]);
 
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
+    const { data, isLoading, isFetching, error } = useGetProductsQuery(queryParams);
+
+    const products = data?.products || [];
+    const pagination = data?.pagination || { total: 0, pages: 0, page: 1, limit: 12 };
+    const loading = isLoading;
+    const searching = isFetching && !isLoading;
 
     // Reset page when filters change
     useEffect(() => {
