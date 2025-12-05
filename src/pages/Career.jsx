@@ -53,13 +53,13 @@ const Career = () => {
                 {CAREER_HERO_IMAGES.map((img, idx) => (
                     <div
                         key={idx}
-                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-30' : 'opacity-0'
+                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-60' : 'opacity-0'
                             }`}
                         style={{ backgroundImage: `url('${img}')` }}
                     />
                 ))}
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/70" />
+                {/* Simple overlay for text contrast */}
+                <div className="absolute inset-0 bg-black/30" />
             </div>
 
             {/* Hero content */}

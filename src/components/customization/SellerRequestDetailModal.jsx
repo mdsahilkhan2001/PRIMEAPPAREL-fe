@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, DollarSign, Send, CheckCircle, AlertCircle, FileText, Calendar, Package, User } from 'lucide-react';
 import axios from '../../api';
+import { getImageUrl } from '../../config';
 
 const SellerRequestDetailModal = ({ request, isOpen, onClose, onUpdate }) => {
     const [quoteAmount, setQuoteAmount] = useState('');
@@ -68,7 +69,7 @@ const SellerRequestDetailModal = ({ request, isOpen, onClose, onUpdate }) => {
                             {/* Product Info */}
                             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
                                 <img
-                                    src={`http://localhost:5000${request.product.images[0]}`}
+                                    src={getImageUrl(request.product.images[0])}
                                     alt={request.product.name}
                                     className="w-16 h-16 object-cover rounded-md"
                                 />
@@ -148,9 +149,9 @@ const SellerRequestDetailModal = ({ request, isOpen, onClose, onUpdate }) => {
                                     <h4 className="font-semibold text-gray-900 mb-2">Reference Images</h4>
                                     <div className="grid grid-cols-4 gap-2">
                                         {request.referenceImages.map((img, i) => (
-                                            <a key={i} href={`http://localhost:5000${img}`} target="_blank" rel="noopener noreferrer">
+                                            <a key={i} href={getImageUrl(img)} target="_blank" rel="noopener noreferrer">
                                                 <img
-                                                    src={`http://localhost:5000${img}`}
+                                                    src={getImageUrl(img)}
                                                     alt={`Ref ${i}`}
                                                     className="w-full h-20 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition-opacity"
                                                 />

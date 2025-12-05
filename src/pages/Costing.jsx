@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-//import API from "../../api"; // <-- update path if needed
-import API from "../api/index"
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import axios from 'axios';
+import API from '../api';
 
 const Costing = () => {
     const [searchParams] = useSearchParams();
@@ -54,18 +54,8 @@ const Costing = () => {
 
     const handleSave = async () => {
         try {
-            const finalCost = calculate(); // auto calculate before saving
-
-            const payload = {
-                ...formData,
-                baseCost: finalCost.baseCost,
-                profitAmount: finalCost.profit,
-                exwPrice: finalCost.exw
-            };
-
-            await API.post("/costings", payload);
-
-            alert("Costing saved successfully!");
+            await API.post('/costings', formData);
+            alert('Costing saved successfully!');
         } catch (error) {
             console.error(error);
             alert("Error saving costing");

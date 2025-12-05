@@ -10,51 +10,48 @@ import {
   Truck,
   Palette,
   Leaf,
-  Users,
-  Package,
-  TrendingUp,
   Star,
   ChevronLeft,
   ChevronRight,
-  FileSearch,
-  MessageSquare,
-  Settings,
-  Factory
+  Play
 } from 'lucide-react';
-import axios from 'axios';
+import API from '../api';
 import { HERO_IMAGES } from '../constants/heroImages';
 import { TESTIMONIALS, FEATURED_CATEGORIES } from '../constants/testimonials';
+import { getImageUrl } from '../config';
 
 /**
- * Home page – premium B2B wholesale apparel landing page.
+ * Home page – Premium B2B Wholesale Apparel
+ * Redesigned for a high-end, editorial aesthetic.
  */
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
-  const [counters, setCounters] = useState({ years: 0, products: 0, countries: 0, clients: 0 });
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const [categoryImages, setCategoryImages] = useState([]);
-  const statsRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Fetch products
+  const [categoryImages, setCategoryImages] = useState([]);
+
+  // Fetch products and category images
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get('/api/products');
-        // API now returns {products: [], pagination: {}} instead of plain array
+        const { data } = await API.get('/products');
         const productsArray = data.products || data;
-        setProducts(productsArray.slice(0, 3));
-        // Use 6 products for category backgrounds (or reuse if less)
-        const categoryBgs = productsArray.slice(0, 6).map(p =>
-          p.images && p.images[0] ? `http://localhost:5000${encodeURI(p.images[0])}` : null
-        );
-        // Fill remaining slots if we have less than 6 products
-        while (categoryBgs.length < 6 && categoryBgs.length > 0) {
-          categoryBgs.push(categoryBgs[categoryBgs.length % productsArray.length]);
-        }
-        setCategoryImages(categoryBgs);
+        setProducts(productsArray.slice(0, 8)); // Fetch more for the grid
+
+        // Extract images for categories
+        const catImages = FEATURED_CATEGORIES.map(cat => {
+          // Find a product that matches the category (loosely)
+          const match = productsArray.find(p =>
+            p.category?.toLowerCase().includes(cat.name.split(' ')[0].toLowerCase()) ||
+            p.name?.toLowerCase().includes(cat.name.split(' ')[0].toLowerCase())
+          );
+          return match && match.images && match.images[0] ? getImageUrl(match.images[0]) : null;
+        });
+        setCategoryImages(catImages);
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -62,282 +59,124 @@ const Home = () => {
       }
     };
     fetchProducts();
+    setIsVisible(true);
   }, []);
 
-  // Cycle through hero images every 5 seconds
+  // Hero Slider Timer
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Auto-rotate testimonials
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length);
     }, 6000);
     return () => clearInterval(timer);
   }, []);
 
-  // Animated counter for statistics
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-          const targets = { years: 15, products: 5000, countries: 45, clients: 1200 };
-          const duration = 2000; // 2 seconds
-          const steps = 60;
-          const stepDuration = duration / steps;
-
-          let currentStep = 0;
-          const timer = setInterval(() => {
-            currentStep++;
-            const progress = currentStep / steps;
-
-            setCounters({
-              years: Math.floor(targets.years * progress),
-              products: Math.floor(targets.products * progress),
-              countries: Math.floor(targets.countries * progress),
-              clients: Math.floor(targets.clients * progress)
-            });
-
-            if (currentStep >= steps) {
-              setCounters(targets);
-              clearInterval(timer);
-            }
-          }, stepDuration);
-        }
-      },
-      { threshold: 0.3 }
-    );
-
-    if (statsRef.current) {
-      observer.observe(statsRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasAnimated]);
-
-  /** Hero section */
+  // Hero Section
   const Hero = () => (
-    <section
-      aria-label="Hero"
-      className="relative bg-gradient-to-br from-white via-orange-50/30 to-amber-50/40 text-slate-900 min-h-screen flex items-center overflow-hidden"
-    >
-      {/* Background image slider */}
+    <section className="relative h-screen w-full overflow-hidden bg-primary">
+      {/* Background Slider */}
       <div className="absolute inset-0 z-0">
         {HERO_IMAGES.map((img, idx) => (
           <div
             key={idx}
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-30' : 'opacity-0'
+            className={`absolute inset-0 bg-cover bg-center transition-all duration-[2000ms] ease-in-out ${currentSlide === idx ? 'opacity-60 scale-105' : 'opacity-0 scale-100'
               }`}
             style={{ backgroundImage: `url('${img}')` }}
           />
         ))}
+        <div className="absolute inset-0 bg-black/30" /> {/* Overlay for text contrast */}
       </div>
 
-      {/* Hero content */}
-      <div className="container-custom relative z-10 w-full pt-20 pb-20">
-        <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 leading-tight">
-            Premium Apparel <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-yellow-600">
-              Manufacturing
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4 sm:px-6">
+        <div className={`transition-all duration-1000 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+          <span className="inline-block py-1 px-3 border border-white/30 rounded-full text-xs md:text-sm font-medium tracking-[0.2em] text-white uppercase mb-6 backdrop-blur-sm">
+            Est. 2010 • Global Manufacturer
+          </span>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold text-white mb-6 leading-tight tracking-tight">
+            Elegance in <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
+              Every Stitch
             </span>
           </h1>
-
-          <p className="text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl leading-relaxed">
-            From Kaftans to Resort Wear – We manufacture high‑quality garments with MOQs starting
-            from just 100 pieces.
+          <p className="text-lg md:text-xl text-slate-200 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+            Premium wholesale apparel manufacturing for brands that demand excellence.
+            From concept to creation, we bring your vision to life.
           </p>
 
-          {/* Primary actions */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              to="/inquiry"
-              className="btn btn-accent rounded-full text-lg px-10 py-4 hover:-translate-y-1 transition shadow-lg shadow-accent/20"
-            >
-              Request Quote
-            </Link>
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
             <Link
               to="/products"
-              className="btn btn-outline bg-primary/5 text-primary border-primary/20 rounded-full text-lg px-10 py-4 hover:bg-primary hover:text-white transition"
+              className="group relative px-8 py-4 bg-white text-primary font-bold text-sm uppercase tracking-widest overflow-hidden transition-all hover:bg-accent hover:text-white"
             >
-              Browse Collections
+              <span className="relative z-10">View Collection</span>
             </Link>
-          </div>
-
-          {/* Highlights – badges */}
-          <div className="mt-10 sm:mt-14 mb-12 flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 px-4">
-            <div className="flex items-center gap-3 bg-white/80 px-6 py-3 rounded-full backdrop-blur-md border border-primary/10 hover:bg-white transition">
-              <CheckCircle size={20} className="text-accent" />
-              <span className="text-sm font-semibold text-slate-700">Verified Manufacturer</span>
-            </div>
-            <div className="flex items-center gap-3 bg-white/80 px-6 py-3 rounded-full backdrop-blur-md border border-primary/10 hover:bg-white transition">
-              <Globe size={20} className="text-accent" />
-              <span className="text-sm font-semibold text-slate-700">Global Shipping</span>
-            </div>
+            <Link
+              to="/inquiry"
+              className="group flex items-center gap-3 px-8 py-4 border border-white/40 text-white font-bold text-sm uppercase tracking-widest hover:bg-white/10 transition-all backdrop-blur-sm"
+            >
+              <span>Get Quote</span>
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Slide indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+      {/* Slide Indicators */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-4 z-20">
         {HERO_IMAGES.map((_, idx) => (
           <button
             key={idx}
-            aria-label={`Slide ${idx + 1}`}
             onClick={() => setCurrentSlide(idx)}
-            className={`h-2 rounded-full transition-all ${currentSlide === idx ? 'bg-accent w-12' : 'bg-slate-400 w-3 hover:bg-slate-500'
+            className={`h-[2px] transition-all duration-500 ${currentSlide === idx ? 'bg-white w-12' : 'bg-white/30 w-6 hover:bg-white/60'
               }`}
+            aria-label={`Go to slide ${idx + 1}`}
           />
         ))}
       </div>
     </section>
   );
 
-  /** Statistics section */
-  const Statistics = () => (
-    <section ref={statsRef} className="py-20 bg-gradient-to-br from-primary via-primary-dark to-primary text-white">
+  // Editorial Category Grid
+  const CategoryGrid = () => (
+    <section className="py-24 bg-white">
       <div className="container-custom">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-          <div className="text-center">
-            <div className="text-5xl md:text-6xl font-bold mb-2 text-accent">{counters.years}+</div>
-            <div className="text-sm md:text-base text-slate-300">Years in Business</div>
-          </div>
-          <div className="text-center">
-            <div className="text-5xl md:text-6xl font-bold mb-2 text-accent">{counters.products.toLocaleString()}+</div>
-            <div className="text-sm md:text-base text-slate-300">Products Manufactured</div>
-          </div>
-          <div className="text-center">
-            <div className="text-5xl md:text-6xl font-bold mb-2 text-accent">{counters.countries}+</div>
-            <div className="text-sm md:text-base text-slate-300">Countries Served</div>
-          </div>
-          <div className="text-center">
-            <div className="text-5xl md:text-6xl font-bold mb-2 text-accent">{counters.clients.toLocaleString()}+</div>
-            <div className="text-sm md:text-base text-slate-300">Happy Clients</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  /** Why Choose Us section */
-  const WhyChooseUs = () => {
-    const benefits = [
-      {
-        icon: Package,
-        title: "Low MOQ",
-        description: "Start with just 100 pieces – perfect for small and growing businesses"
-      },
-      {
-        icon: Zap,
-        title: "Fast Production",
-        description: "Quick turnaround times without compromising on quality"
-      },
-      {
-        icon: Shield,
-        title: "Quality Assurance",
-        description: "Rigorous quality control at every stage of production"
-      },
-      {
-        icon: Truck,
-        title: "Global Shipping",
-        description: "Reliable worldwide delivery to 45+ countries"
-      },
-      {
-        icon: Palette,
-        title: "Full Customization",
-        description: "Bring your designs to life with our expert team"
-      },
-      {
-        icon: Leaf,
-        title: "Eco-Friendly",
-        description: "Sustainable practices and eco-conscious materials"
-      }
-    ];
-
-    return (
-      <section className="py-28 bg-gradient-to-br from-slate-50 to-white">
-        <div className="container-custom text-center mb-16">
-          <span className="text-accent font-bold tracking-widest uppercase text-sm mb-3 block">
-            Why Partner With Us
-          </span>
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6 text-primary">
-            Your Trusted Manufacturing Partner
-          </h2>
-          <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-            We combine quality craftsmanship with flexible solutions to help your business thrive
-          </p>
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary mb-4">Curated Categories</h2>
+          <div className="w-20 h-1 bg-accent mx-auto" />
         </div>
 
-        <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {benefits.map((benefit, idx) => (
-              <div
-                key={idx}
-                className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-card transition-all duration-300 border border-slate-100 group hover:-translate-y-2"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <benefit.icon size={28} className="text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-primary mb-3">{benefit.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{benefit.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  };
-
-  /** Featured Categories section */
-  const FeaturedCategories = () => (
-    <section className="py-28 bg-white">
-      <div className="container-custom text-center mb-16">
-        <span className="text-accent font-bold tracking-widest uppercase text-sm mb-3 block">
-          Product Categories
-        </span>
-        <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6 text-primary">
-          Explore Our Collections
-        </h2>
-        <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-          Discover premium apparel designed for the global market
-        </p>
-      </div>
-
-      <div className="container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURED_CATEGORIES.map((category, idx) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+          {FEATURED_CATEGORIES.slice(0, 3).map((cat, idx) => (
             <Link
-              key={category.id}
-              to={category.link}
-              className="group relative h-64 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2"
+              to={cat.link}
+              key={cat.id}
+              className={`group relative overflow-hidden h-[400px] md:h-[500px] ${idx === 1 ? 'md:-mt-12' : '' // Staggered effect
+                }`}
             >
-              {/* Background Image */}
-              {categoryImages[idx] ? (
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                  style={{ backgroundImage: `url('${categoryImages[idx]}')` }}
-                />
-              ) : (
-                <div className={`absolute inset-0 bg-gradient-to-br ${category.color}`} />
-              )}
+              <div className="absolute inset-0 bg-gray-200">
+                {/* Category Image */}
+                {categoryImages[idx] ? (
+                  <div
+                    className="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                    style={{ backgroundImage: `url('${categoryImages[idx]}')` }}
+                  />
+                ) : (
+                  <div className={`w-full h-full bg-gradient-to-br ${cat.color} opacity-80`} />
+                )}
+              </div>
 
-              {/* Bottom gradient overlay for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500" />
 
-              {/* Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 relative z-10">
-                <h3 className="text-2xl font-heading font-bold mb-2 group-hover:scale-110 transition-transform" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>
-                  {category.name}
+              <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
+                <h3 className="text-3xl font-heading font-bold text-white mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                  {cat.name}
                 </h3>
-                <p className="text-white/95 mb-4" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.9)' }}>{category.description}</p>
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="font-semibold">Explore</span>
-                  <ArrowRight size={20} />
+                <p className="text-white/80 text-sm mb-6 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75">
+                  {cat.description}
+                </p>
+                <div className="flex items-center gap-2 text-white text-sm font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                  <span>Explore</span>
+                  <ArrowRight size={16} />
                 </div>
               </div>
             </Link>
@@ -347,316 +186,203 @@ const Home = () => {
     </section>
   );
 
-  /** How It Works section */
-  const HowItWorks = () => {
-    const steps = [
-      {
-        number: "01",
-        icon: FileSearch,
-        title: "Browse & Discover",
-        description: "Explore our extensive catalog of premium apparel designs and styles"
-      },
-      {
-        number: "02",
-        icon: MessageSquare,
-        title: "Send Inquiry",
-        description: "Contact us with your requirements, quantities, and customization needs"
-      },
-      {
-        number: "03",
-        icon: Settings,
-        title: "Customize & Approve",
-        description: "Work with our team to finalize designs, materials, and specifications"
-      },
-      {
-        number: "04",
-        icon: Factory,
-        title: "Production & Delivery",
-        description: "We manufacture your order with precision and ship worldwide"
-      }
-    ];
-
-    return (
-      <section className="py-28 bg-gradient-to-br from-slate-50 to-orange-50/30">
-        <div className="container-custom text-center mb-16">
-          <span className="text-accent font-bold tracking-widest uppercase text-sm mb-3 block">
-            Simple Process
-          </span>
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6 text-primary">
-            How It Works
-          </h2>
-          <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-            From concept to delivery in four straightforward steps
-          </p>
-        </div>
-
-        <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-            {/* Connection line for desktop */}
-            <div className="hidden lg:block absolute top-20 left-0 right-0 h-1 bg-gradient-to-r from-accent/20 via-accent to-accent/20" />
-
-            {steps.map((step, idx) => (
-              <div key={idx} className="relative">
-                <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-card transition-all duration-300 border-2 border-slate-100 hover:border-accent/20 group">
-                  <div className="relative">
-                    <div className="w-20 h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform relative z-10">
-                      <step.icon size={32} className="text-white" />
-                    </div>
-                    <div className="absolute -top-4 -right-4 text-7xl font-bold text-accent/10 group-hover:text-accent/20 transition-colors">
-                      {step.number}
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-primary mb-3 text-center">{step.title}</h3>
-                  <p className="text-slate-600 text-center leading-relaxed">{step.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  };
-
-  /** Collections section */
-  const Collections = () => (
-    <section aria-labelledby="collections-heading" className="py-28 bg-white">
-      <div className="container-custom text-center mb-16">
-        <span className="text-accent font-bold tracking-widest uppercase text-sm mb-3 block">
-          Our Expertise
-        </span>
-        <h2
-          id="collections-heading"
-          className="text-4xl md:text-5xl font-heading font-bold mb-6 text-primary"
-        >
-          Latest Collections
-        </h2>
-        <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-          Explore our signature styles, crafted with precision and designed for the modern global market
-        </p>
-      </div>
-
+  // Minimalist Product Showcase
+  const NewArrivals = () => (
+    <section className="py-24 bg-secondary/30">
       <div className="container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+          <div>
+            <span className="text-accent font-bold tracking-widest uppercase text-xs mb-2 block">New Season</span>
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary">Latest Arrivals</h2>
+          </div>
+          <Link to="/products" className="group flex items-center gap-2 text-primary font-medium hover:text-accent transition-colors">
+            View All Products
+            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {loading ? (
-            <div className="col-span-3 text-center py-10">Loading collections...</div>
+            [...Array(4)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-gray-200 h-[400px] w-full mb-4" />
+                <div className="h-4 bg-gray-200 w-3/4 mb-2" />
+                <div className="h-4 bg-gray-200 w-1/2" />
+              </div>
+            ))
           ) : (
-            products.map((product) => (
-              <Link
-                to={`/products/${product._id}`}
-                key={product._id}
-                className="group relative h-[320px] md:h-[380px] lg:h-[420px] rounded-3xl overflow-hidden transition-all block bg-gradient-to-br from-slate-100 to-slate-200 hover:shadow-2xl hover:-translate-y-2"
-              >
-                {/* Image container with object-fit contain to prevent cropping */}
-                <div className="absolute inset-0 overflow-hidden">
+            products.slice(0, 4).map((product) => (
+              <Link to={`/products/${product._id}`} key={product._id} className="group block">
+                <div className="relative h-[450px] overflow-hidden bg-white mb-4">
                   <img
-                    src={
-                      product.images && product.images[0]
-                        ? `http://localhost:5000${encodeURI(product.images[0])}`
-                        : 'https://via.placeholder.com/800x600?text=No+Image'
-                    }
+                    src={getImageUrl(product.images?.[0])}
                     alt={product.name}
-                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+
+                  {/* Quick Action */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <button className="w-full bg-white text-primary py-3 font-medium text-sm uppercase tracking-wide hover:bg-primary hover:text-white transition-colors shadow-lg">
+                      View Details
+                    </button>
+                  </div>
                 </div>
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                {/* Content overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <h3 className="text-3xl text-white font-heading font-bold mb-4">
+
+                <div className="text-center">
+                  <h3 className="text-lg font-heading font-medium text-primary mb-1 group-hover:text-accent transition-colors">
                     {product.name}
                   </h3>
-                  <div className="flex items-center text-accent opacity-0 group-hover:opacity-100 transition">
-                    <span className="mr-2 font-bold">View Details</span>
-                    <ArrowRight size={20} />
-                  </div>
+                  <p className="text-sm text-slate-500">
+                    MOQ: {product.moq} pcs
+                  </p>
                 </div>
               </Link>
             ))
           )}
         </div>
-
-        <div className="text-center mt-12">
-          <Link
-            to="/products"
-            className="inline-flex items-center gap-2 btn btn-outline border-primary/20 text-primary hover:bg-primary hover:text-white rounded-full px-8 py-3 font-semibold transition-all hover:-translate-y-1"
-          >
-            View All Products
-            <ArrowRight size={20} />
-          </Link>
-        </div>
       </div>
     </section>
   );
 
-  /** Testimonials section */
-  const Testimonials = () => (
-    <section className="py-28 bg-gradient-to-br from-primary via-primary-dark to-primary text-white overflow-hidden">
-      <div className="container-custom text-center mb-16">
-        <span className="text-accent font-bold tracking-widest uppercase text-sm mb-3 block">
-          Client Success Stories
-        </span>
-        <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6 text-white">
-          What Our Clients Say
-        </h2>
-        <p className="text-slate-300 max-w-2xl mx-auto text-lg">
-          Trusted by businesses worldwide for quality and reliability
-        </p>
-      </div>
-
-      <div className="container-custom max-w-4xl relative">
-        {/* Testimonial Card */}
-        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 md:p-12 border border-white/20 min-h-[300px] flex flex-col justify-between">
-          <div>
-            <div className="flex gap-1 mb-6 justify-center">
-              {[...Array(TESTIMONIALS[testimonialIndex].rating)].map((_, i) => (
-                <Star key={i} size={24} className="fill-accent text-accent" />
-              ))}
+  // Features / Why Choose Us
+  const Features = () => (
+    <section className="py-24 bg-primary text-white">
+      <div className="container-custom">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-white/10">
+          <div className="px-4 py-4">
+            <div className="w-16 h-16 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6 text-accent">
+              <Globe size={32} />
             </div>
-
-            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed italic text-center">
-              "{TESTIMONIALS[testimonialIndex].message}"
+            <h3 className="text-xl font-bold mb-3">Global Shipping</h3>
+            <p className="text-slate-400 leading-relaxed">
+              Reliable logistics partners ensuring your products reach over 45 countries safely and on time.
             </p>
           </div>
-
-          <div className="flex items-center justify-center gap-4">
-            <div className="w-14 h-14 bg-accent rounded-full flex items-center justify-center text-white font-bold text-lg">
-              {TESTIMONIALS[testimonialIndex].image}
+          <div className="px-4 py-4">
+            <div className="w-16 h-16 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6 text-accent">
+              <Award size={32} />
             </div>
-            <div className="text-left">
-              <div className="font-bold text-lg text-white">{TESTIMONIALS[testimonialIndex].name}</div>
-              <div className="text-sm text-slate-300">{TESTIMONIALS[testimonialIndex].company}</div>
-              <div className="text-xs text-slate-400">{TESTIMONIALS[testimonialIndex].location}</div>
+            <h3 className="text-xl font-bold mb-3">Premium Quality</h3>
+            <p className="text-slate-400 leading-relaxed">
+              Rigorous 3-step quality control process. We don't just manufacture; we craft perfection.
+            </p>
+          </div>
+          <div className="px-4 py-4">
+            <div className="w-16 h-16 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6 text-accent">
+              <Zap size={32} />
             </div>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex items-center justify-center gap-4 mt-8">
-          <button
-            onClick={() => setTestimonialIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/20"
-            aria-label="Previous testimonial"
-          >
-            <ChevronLeft size={24} />
-          </button>
-
-          <div className="flex gap-2">
-            {TESTIMONIALS.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setTestimonialIndex(idx)}
-                className={`h-2 rounded-full transition-all ${idx === testimonialIndex ? 'bg-accent w-8' : 'bg-white/30 w-2 hover:bg-white/50'
-                  }`}
-                aria-label={`Go to testimonial ${idx + 1}`}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={() => setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length)}
-            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/20"
-            aria-label="Next testimonial"
-          >
-            <ChevronRight size={24} />
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-
-  /** Trust Badges section */
-  const TrustBadges = () => (
-    <section className="py-20 bg-white border-y border-slate-200">
-      <div className="container-custom">
-        <div className="text-center mb-12">
-          <h3 className="text-2xl font-bold text-primary mb-2">Trusted & Certified</h3>
-          <p className="text-slate-600">Industry-leading standards and partnerships</p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center opacity-60">
-          <div className="flex items-center gap-2">
-            <Shield size={32} className="text-primary" />
-            <span className="font-semibold text-slate-700">ISO Certified</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Award size={32} className="text-primary" />
-            <span className="font-semibold text-slate-700">Quality Assured</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Leaf size={32} className="text-green-600" />
-            <span className="font-semibold text-slate-700">Eco-Friendly</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Globe size={32} className="text-primary" />
-            <span className="font-semibold text-slate-700">Global Partner</span>
+            <h3 className="text-xl font-bold mb-3">Fast Production</h3>
+            <p className="text-slate-400 leading-relaxed">
+              Industry-leading turnaround times. From sample to bulk production in as little as 2 weeks.
+            </p>
           </div>
         </div>
       </div>
     </section>
   );
 
-  /** Final CTA section */
-  const FinalCTA = () => (
-    <section className="py-28 bg-gradient-to-br from-accent via-orange-500 to-yellow-500 text-white relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl" />
+  // Video / Brand Story Section
+  const BrandStory = () => (
+    <section className="relative py-32 bg-gray-100 overflow-hidden">
+      <div className="absolute inset-0">
+        <img
+          src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070"
+          alt="Workshop"
+          className="w-full h-full object-cover grayscale opacity-20"
+        />
       </div>
-
-      <div className="container-custom text-center relative z-10">
-        <h2 className="text-4xl md:text-6xl font-heading font-bold mb-6">
-          Ready to Start Your Order?
+      <div className="container-custom relative z-10 text-center">
+        <span className="text-accent font-bold tracking-[0.2em] uppercase text-sm mb-4 block">Our Story</span>
+        <h2 className="text-4xl md:text-5xl font-heading font-bold text-primary mb-8 max-w-3xl mx-auto">
+          Crafting Fashion Since 2010
         </h2>
-        <p className="text-xl md:text-2xl mb-10 text-white/90 max-w-3xl mx-auto">
-          Join 1,200+ satisfied clients worldwide. Let's bring your apparel vision to life.
+        <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+          We started with a single sewing machine and a dream. Today, we are the preferred manufacturing partner for global fashion brands, blending traditional craftsmanship with modern technology.
+        </p>
+        <button className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-full hover:bg-accent transition-colors shadow-xl">
+          <Play size={20} className="fill-current" />
+          <span className="font-bold tracking-wide uppercase text-sm">Watch Our Process</span>
+        </button>
+      </div>
+    </section>
+  );
+
+  // Testimonials Slider
+  const TestimonialSlider = () => (
+    <section className="py-24 bg-white">
+      <div className="container-custom max-w-4xl text-center">
+        <div className="mb-12">
+          <Star size={32} className="text-accent fill-current mx-auto mb-4" />
+          <h2 className="text-3xl font-heading font-bold text-primary">Client Stories</h2>
+        </div>
+
+        <div className="relative min-h-[300px]">
+          <div className="transition-opacity duration-500">
+            <p className="text-2xl md:text-3xl font-heading font-light text-slate-800 mb-8 leading-snug">
+              "{TESTIMONIALS[testimonialIndex].message}"
+            </p>
+            <div>
+              <h4 className="text-lg font-bold text-primary">{TESTIMONIALS[testimonialIndex].name}</h4>
+              <p className="text-sm text-slate-500 uppercase tracking-wider mt-1">
+                {TESTIMONIALS[testimonialIndex].company} • {TESTIMONIALS[testimonialIndex].location}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-4 mt-12">
+            <button
+              onClick={() => setTestimonialIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+              className="p-3 rounded-full border border-slate-200 hover:border-accent hover:text-accent transition-colors"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={() => setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length)}
+              className="p-3 rounded-full border border-slate-200 hover:border-accent hover:text-accent transition-colors"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  // Newsletter / CTA
+  const Newsletter = () => (
+    <section className="py-24 bg-accent text-white relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+      <div className="container-custom relative z-10 text-center">
+        <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">Ready to Create?</h2>
+        <p className="text-xl text-white/90 max-w-2xl mx-auto mb-10">
+          Join our network of successful brands. Get the latest trends and manufacturing insights delivered to your inbox.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            to="/inquiry"
-            className="inline-flex items-center gap-2 bg-white text-accent px-10 py-4 rounded-full font-bold text-lg hover:bg-slate-100 transition-all hover:-translate-y-1 shadow-2xl"
-          >
-            Request a Quote
-            <ArrowRight size={24} />
-          </Link>
-          <Link
-            to="/products"
-            className="inline-flex items-center gap-2 bg-transparent border-2 border-white text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-accent transition-all hover:-translate-y-1"
-          >
-            Browse Products
-          </Link>
-        </div>
-
-        <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 text-white/90">
-          <div className="flex items-center gap-2">
-            <CheckCircle size={20} />
-            <span>Low MOQ (100 pcs)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CheckCircle size={20} />
-            <span>Fast Turnaround</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CheckCircle size={20} />
-            <span>Global Shipping</span>
-          </div>
+        <div className="max-w-md mx-auto flex gap-2 p-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+          <input
+            type="email"
+            placeholder="Enter your email address"
+            className="flex-1 bg-transparent border-none text-white placeholder-white/60 focus:ring-0 px-4 py-2"
+          />
+          <button className="bg-white text-accent px-8 py-3 rounded-full font-bold uppercase text-sm tracking-wider hover:bg-slate-100 transition-colors">
+            Subscribe
+          </button>
         </div>
       </div>
     </section>
   );
 
   return (
-    <div className="min-h-screen font-sans text-slate-900 overflow-x-hidden">
+    <div className="min-h-screen font-sans text-slate-900">
       <Hero />
-      <Statistics />
-      <WhyChooseUs />
-      <FeaturedCategories />
-      <HowItWorks />
-      <Collections />
-      <Testimonials />
-      <TrustBadges />
-      <FinalCTA />
+      <CategoryGrid />
+      <NewArrivals />
+      <BrandStory />
+      <Features />
+      <TestimonialSlider />
+      <Newsletter />
     </div>
   );
 };

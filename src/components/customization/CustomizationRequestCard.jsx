@@ -1,5 +1,6 @@
 import React from 'react';
 import { Calendar, Package, DollarSign, Clock, ChevronRight } from 'lucide-react';
+import { getImageUrl } from '../../config';
 
 const CustomizationRequestCard = ({ request, onClick }) => {
     const getStatusColor = (status) => {
@@ -22,7 +23,7 @@ const CustomizationRequestCard = ({ request, onClick }) => {
             <div className="flex justify-between items-start mb-4">
                 <div className="flex gap-4">
                     <img
-                        src={`http://localhost:5000${request.product.images[0]}`}
+                        src={getImageUrl(request.product.images[0])}
                         alt={request.product.name}
                         className="w-16 h-16 object-cover rounded-lg"
                     />
