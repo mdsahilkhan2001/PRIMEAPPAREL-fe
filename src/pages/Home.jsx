@@ -15,7 +15,7 @@ import {
   ChevronRight,
   Play
 } from 'lucide-react';
-import API from '../api';
+import { useGetProductsQuery } from '../redux/slices/apiSlice';
 import { HERO_IMAGES } from '../constants/heroImages';
 import { TESTIMONIALS, FEATURED_CATEGORIES } from '../constants/testimonials';
 import { getImageUrl } from '../config';
@@ -26,39 +26,32 @@ import { getImageUrl } from '../config';
  */
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
+  const { data: response, isLoading: loading } = useGetProductsQuery({ page: 1, limit: 12 });
+  // RTK Query returns { data: { products: [...], ... } } based on our API response
+  const products = response?.products || response?.data || [];
+
   const [categoryImages, setCategoryImages] = useState([]);
 
-  // Fetch products and category images
+  // Extract category images once products are loaded
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data } = await API.get('/products');
-        const productsArray = data.products || data;
-        setProducts(productsArray.slice(0, 8)); // Fetch more for the grid
+    if (products.length > 0) {
+      const catImages = FEATURED_CATEGORIES.map(cat => {
+        // Find a product that matches the category (loosely)
+        const match = products.find(p =>
+          p.category?.toLowerCase().includes(cat.name.split(' ')[0].toLowerCase()) ||
+          p.name?.toLowerCase().includes(cat.name.split(' ')[0].toLowerCase())
+        );
+        return match && match.images && match.images[0] ? getImageUrl(match.images[0]) : null;
+      });
+      setCategoryImages(catImages);
+    }
+  }, [products]);
 
-        // Extract images for categories
-        const catImages = FEATURED_CATEGORIES.map(cat => {
-          // Find a product that matches the category (loosely)
-          const match = productsArray.find(p =>
-            p.category?.toLowerCase().includes(cat.name.split(' ')[0].toLowerCase()) ||
-            p.name?.toLowerCase().includes(cat.name.split(' ')[0].toLowerCase())
-          );
-          return match && match.images && match.images[0] ? getImageUrl(match.images[0]) : null;
-        });
-        setCategoryImages(catImages);
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setLoading(false);
-      }
-    };
-    fetchProducts();
+  // Initial animation
+  useEffect(() => {
     setIsVisible(true);
   }, []);
 
