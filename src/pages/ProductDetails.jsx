@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
+import { useGetProductByIdQuery } from '../redux/slices/apiSlice';
 import { ChevronRight, ChevronLeft, Star, MessageCircle, Send, ShoppingCart, Heart, Share2, PenTool, ZoomIn } from 'lucide-react';
 import InquiryModal from '../components/InquiryModal';
 import CustomizationModal from '../components/customization/CustomizationModal';
@@ -13,9 +13,6 @@ const ProductDetails = () => {
     const location = useLocation();
     const { user } = useSelector((state) => state.auth);
 
-    const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [activeImage, setActiveImage] = useState(0);
     const [selectedColor, setSelectedColor] = useState(null);
     const [selectedSize, setSelectedSize] = useState(null);
@@ -25,25 +22,20 @@ const ProductDetails = () => {
     const [mediaTab, setMediaTab] = useState('photos');
     const [imageZoom, setImageZoom] = useState(false);
 
-    useEffect(() => {
-        const fetchProduct = async () => {
-            try {
-                const { data } = await axios.get(`/api/products/${id}`);
-                setProduct(data);
-                if (data.colors && data.colors.length > 0) setSelectedColor(data.colors[0]);
-                if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
-                setQuantity(data.moq || 1);
-                setActiveImage(0);
-                setMediaTab(data.video ? 'video' : 'photos');
-                setLoading(false);
-            } catch (err) {
-                setError('Product not found');
-                setLoading(false);
-            }
-        };
+    // Use RTK Query to fetch product
+    const { data: product, isLoading: loading, error: queryError } = useGetProductByIdQuery(id);
+    const error = queryError ? 'Product not found' : null;
 
-        fetchProduct();
-    }, [id]);
+    // Initialize state when product loads
+    useEffect(() => {
+        if (product) {
+            if (product.colors && product.colors.length > 0) setSelectedColor(product.colors[0]);
+            if (product.sizes && product.sizes.length > 0) setSelectedSize(product.sizes[0]);
+            setQuantity(product.moq || 1);
+            setActiveImage(0);
+            setMediaTab(product.video ? 'video' : 'photos');
+        }
+    }, [product]);
 
     // Handle keyboard navigation for images
     useEffect(() => {

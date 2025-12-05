@@ -1,36 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Plus, Edit, Trash2, Search, Filter, CheckCircle, XCircle } from 'lucide-react';
-import API from '../api';
+import { useGetMyProductsQuery, useDeleteProductMutation, useApproveProductMutation, useRejectProductMutation } from '../redux/slices/apiSlice';
 import AddProductModal from '../components/AddProductModal';
 import { getImageUrl } from '../config';
 
 const ProductManagement = () => {
     const { user } = useSelector((state) => state.auth);
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { data: products = [], isLoading: loading, refetch } = useGetMyProductsQuery();
+    const [deleteProduct] = useDeleteProductMutation();
+    const [approveProduct] = useApproveProductMutation();
+    const [rejectProduct] = useRejectProductMutation();
+
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
-
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
-    const fetchProducts = async () => {
-        try {
-            setLoading(true);
-            const endpoint = '/products/my-products';
-            const response = await API.get(endpoint);
-            setProducts(response.data);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            alert('Failed to fetch products');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleDelete = async (productId) => {
         if (!window.confirm('Are you sure you want to delete this product?')) {
@@ -38,9 +23,8 @@ const ProductManagement = () => {
         }
 
         try {
-            await API.delete(`/products/${productId}`);
+            await deleteProduct(productId).unwrap();
             alert('Product deleted successfully');
-            fetchProducts();
         } catch (error) {
             console.error('Error deleting product:', error);
             alert('Failed to delete product');
@@ -53,12 +37,8 @@ const ProductManagement = () => {
         }
 
         try {
-            await API.put(`/products/${productId}`, {
-                approvalStatus: 'APPROVED',
-                status: 'ACTIVE'
-            });
+            await approveProduct(productId).unwrap();
             alert('Product approved successfully');
-            fetchProducts();
         } catch (error) {
             console.error('Error approving product:', error);
             alert('Failed to approve product');
@@ -71,12 +51,8 @@ const ProductManagement = () => {
         }
 
         try {
-            await API.put(`/products/${productId}`, {
-                approvalStatus: 'REJECTED',
-                status: 'INACTIVE'
-            });
+            await rejectProduct(productId).unwrap();
             alert('Product rejected');
-            fetchProducts();
         } catch (error) {
             console.error('Error rejecting product:', error);
             alert('Failed to reject product');
@@ -91,7 +67,7 @@ const ProductManagement = () => {
     const handleModalClose = () => {
         setShowAddModal(false);
         setEditingProduct(null);
-        fetchProducts();
+        refetch(); // RTK Query will auto-refetch
     };
 
     const filteredProducts = products.filter(product => {
@@ -125,15 +101,19 @@ const ProductManagement = () => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Product Management</h1>
-                    <p className="text-sm text-gray-500 mt-1">Manage your product catalog</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {user?.role === 'SELLER' ? 'View and manage your products' : 'Manage your product catalog'}
+                    </p>
                 </div>
-                <button
-                    onClick={() => setShowAddModal(true)}
-                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-                >
-                    <Plus size={20} />
-                    Add New Product
-                </button>
+                {(user?.role === 'ADMIN' || user?.role === 'DESIGNER') && (
+                    <button
+                        onClick={() => setShowAddModal(true)}
+                        className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                        <Plus size={20} />
+                        Add New Product
+                    </button>
+                )}
             </div>
 
             {/* Filters */}

@@ -1,8 +1,38 @@
-import React from 'react';
-import { X, Mail, Phone, MapPin, Calendar, Package, DollarSign, Image as ImageIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Mail, Phone, MapPin, Calendar, Package, DollarSign, Image as ImageIcon, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 const LeadDetailsModal = ({ lead, onClose, onStatusChange }) => {
+    const [loading, setLoading] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('success'); // success, error, warning
+
     if (!lead) return null;
+
+    const showToastMessage = (message, type = 'success') => {
+        setToastMessage(message);
+        setToastType(type);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+    };
+
+    const handleStatusUpdate = async (newStatus, statusLabel) => {
+        setLoading(true);
+        try {
+            await onStatusChange(lead._id, newStatus);
+            showToastMessage(`Lead marked as ${statusLabel}!`, 'success');
+
+            if (newStatus === 'ORDER_CONFIRMED') {
+                setTimeout(() => {
+                    showToastMessage('Order created successfully! Buyer can now see it in My Orders.', 'success');
+                }, 1500);
+            }
+        } catch (error) {
+            showToastMessage('Failed to update status. Please try again.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -19,6 +49,19 @@ const LeadDetailsModal = ({ lead, onClose, onStatusChange }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden relative animate-in fade-in zoom-in flex flex-col max-h-[90vh]">
+
+                {/* Toast Notification */}
+                {showToast && (
+                    <div className={`fixed top-4 right-4 z-[60] px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-top ${toastType === 'success' ? 'bg-green-500 text-white' :
+                        toastType === 'error' ? 'bg-red-500 text-white' :
+                            'bg-yellow-500 text-white'
+                        }`}>
+                        {toastType === 'success' && <CheckCircle className="w-5 h-5" />}
+                        {toastType === 'error' && <XCircle className="w-5 h-5" />}
+                        {toastType === 'warning' && <Clock className="w-5 h-5" />}
+                        <span className="font-medium">{toastMessage}</span>
+                    </div>
+                )}
 
                 {/* Header */}
                 <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-white sticky top-0 z-10">
@@ -38,28 +81,11 @@ const LeadDetailsModal = ({ lead, onClose, onStatusChange }) => {
                 <div className="p-6 overflow-y-auto custom-scrollbar space-y-8">
 
                     {/* Status Section */}
-                    <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500 mb-1">Current Status</p>
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${getStatusColor(lead.status)}`}>
-                                {lead.status}
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <label className="text-sm font-medium text-gray-700">Update Status:</label>
-                            <select
-                                value={lead.status}
-                                onChange={(e) => onStatusChange(lead._id, e.target.value)}
-                                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer"
-                            >
-                                <option value="NEW">NEW</option>
-                                <option value="QUALIFIED">QUALIFIED</option>
-                                <option value="SCOPE_LOCKED">SCOPE LOCKED</option>
-                                <option value="PI_SENT">PI SENT</option>
-                                <option value="ORDER_CONFIRMED">ORDER CONFIRMED</option>
-                                <option value="LOST">LOST</option>
-                            </select>
-                        </div>
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <p className="text-sm font-medium text-gray-500 mb-3">Current Status</p>
+                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${getStatusColor(lead.status)}`}>
+                            {lead.status}
+                        </span>
                     </div>
 
                     {/* Buyer Info */}
@@ -79,6 +105,17 @@ const LeadDetailsModal = ({ lead, onClose, onStatusChange }) => {
                                     <p className="text-sm text-gray-600">{lead.email}</p>
                                 </div>
                             </div>
+                            {lead.phone && (
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                        <Phone className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500">Phone Number</p>
+                                        <p className="font-medium text-gray-900">{lead.countryCode || '+1'} {lead.phone}</p>
+                                    </div>
+                                </div>
+                            )}
                             <div className="flex items-start gap-3">
                                 <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
                                     <MapPin className="w-5 h-5" />
@@ -164,21 +201,56 @@ const LeadDetailsModal = ({ lead, onClose, onStatusChange }) => {
 
                 </div>
 
-                {/* Footer */}
-                <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-                    <button
-                        onClick={() => window.location.href = `/seller/costing?leadId=${lead._id}`}
-                        className="px-6 py-2.5 bg-accent text-primary font-medium rounded-xl hover:bg-yellow-500 shadow-sm flex items-center gap-2"
-                    >
-                        <DollarSign className="w-4 h-4" />
-                        Create Costing
-                    </button>
-                    <button
-                        onClick={onClose}
-                        className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 shadow-sm"
-                    >
-                        Close Details
-                    </button>
+                {/* Footer with Action Buttons */}
+                <div className="p-6 border-t border-gray-100 bg-gray-50 space-y-4">
+                    {/* Action Buttons - Moved to Bottom */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button
+                            onClick={() => handleStatusUpdate('ORDER_CONFIRMED', 'Order Confirmed')}
+                            disabled={loading || lead.status === 'ORDER_CONFIRMED'}
+                            className="px-4 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                            <CheckCircle className="w-4 h-4" />
+                            Confirm Order
+                        </button>
+
+                        <button
+                            onClick={() => handleStatusUpdate('LOST', 'Out of Stock')}
+                            disabled={loading}
+                            className="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                            <XCircle className="w-4 h-4" />
+                            Out of Stock
+                        </button>
+
+                        <button
+                            onClick={() => handleStatusUpdate('NEW', 'Pending')}
+                            disabled={loading}
+                            className="px-4 py-2.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                            <Clock className="w-4 h-4" />
+                            Mark Pending
+                        </button>
+
+                        <button
+                            onClick={() => handleStatusUpdate('QUALIFIED', 'Qualified')}
+                            disabled={loading}
+                            className="px-4 py-2.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                            <CheckCircle className="w-4 h-4" />
+                            Qualify Lead
+                        </button>
+                    </div>
+
+                    {/* Close Button */}
+                    <div className="flex justify-end">
+                        <button
+                            onClick={onClose}
+                            className="px-6 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 shadow-sm"
+                        >
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
