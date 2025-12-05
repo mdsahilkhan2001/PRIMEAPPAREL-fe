@@ -47,7 +47,7 @@ const Services = () => {
                 {SERVICES_HERO_IMAGES.map((img, idx) => (
                     <div
                         key={idx}
-                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-60' : 'opacity-0'
+                        className={`absolute inset-0 bg-cover bg-center transition-all duration-[2000ms] ease-in-out ${currentSlide === idx ? 'opacity-60 scale-105' : 'opacity-0 scale-100'
                             }`}
                         style={{ backgroundImage: `url('${img}')` }}
                     />

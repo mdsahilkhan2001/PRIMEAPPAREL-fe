@@ -68,12 +68,14 @@ const Products = () => {
         <div className="min-h-screen bg-secondary">
             {/* Hero Section */}
             <div className="relative bg-primary text-white py-24 overflow-hidden">
-                <div className="absolute inset-0 z-0 opacity-20">
+                <div className="absolute inset-0 z-0">
                     <img
-                        src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070"
+                        // src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070"
+                        src="/about-img/about3.jpg"
                         alt="Background"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover opacity-60"
                     />
+                    <div className="absolute inset-0 bg-black/30" />
                 </div>
                 <div className="container-custom relative z-10 text-center max-w-4xl mx-auto px-4">
                     <span className="text-accent font-bold tracking-widest uppercase text-sm mb-4 block">
@@ -109,7 +111,7 @@ const Products = () => {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Controls Bar */}
-                <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-10 sticky top-20 z-30 bg-secondary/95 backdrop-blur-sm py-4 -mx-4 px-4 border-b border-slate-200/50">
+                <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-10 bg-secondary/95 backdrop-blur-sm py-4 -mx-4 px-4 border-b border-slate-200/50">
                     {/* Filters */}
                     {/* Filters */}
                     <div className="flex flex-wrap items-center gap-4">
@@ -203,7 +205,7 @@ const Products = () => {
                                         <img
                                             src={getImageUrl(product.images && product.images[0])}
                                             alt={product.name}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
                                             onError={(e) => {
                                                 e.target.onerror = null;
                                                 e.target.src = '/placeholder.svg';

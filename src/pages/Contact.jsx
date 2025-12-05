@@ -54,65 +54,65 @@ const Contact = () => {
     };
 
     /** Hero section */
-    const Hero = () => (
-        <section
-            aria-label="Contact Hero"
-            className="relative bg-primary text-white min-h-[70vh] flex items-center overflow-hidden"
-        >
-            {/* Background image slider */}
-            <div className="absolute inset-0 z-0">
-                {CONTACT_HERO_IMAGES.map((img, idx) => (
-                    <div
-                        key={idx}
-                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-60' : 'opacity-0'
-                            }`}
-                        style={{ backgroundImage: `url('${img}')` }}
-                    />
-                ))}
-                {/* Simple overlay for text contrast */}
-                <div className="absolute inset-0 bg-black/30" />
-            </div>
+    // const Hero = () => (
+    //     <section
+    //         aria-label="Contact Hero"
+    //         className="relative bg-primary text-white min-h-[70vh] flex items-center overflow-hidden"
+    //     >
+    //         {/* Background image slider */}
+    //         <div className="absolute inset-0 z-0">
+    //             {CONTACT_HERO_IMAGES.map((img, idx) => (
+    //                 <div
+    //                     key={idx}
+    //                     className={`absolute inset-0 bg-cover bg-center transition-all duration-[2000ms] ease-in-out ${currentSlide === idx ? 'opacity-60 scale-105' : 'opacity-0 scale-100'
+    //                         }`}
+    //                     style={{ backgroundImage: `url('${img}')` }}
+    //                 />
+    //             ))}
+    //             {/* Simple overlay for text contrast */}
+    //             <div className="absolute inset-0 bg-black/30" />
+    //         </div>
 
-            {/* Hero content */}
-            <div className="container-custom relative z-10 w-full pt-20 pb-20">
-                <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 leading-tight">
-                        Let's Connect
-                    </h1>
+    //         {/* Hero content */}
+    //         <div className="container-custom relative z-10 w-full pt-20 pb-20">
+    //             <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+    //                 <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 leading-tight">
+    //                     Let's Connect
+    //                 </h1>
 
-                    <p className="text-xl md:text-2xl text-slate-200 mb-8 max-w-3xl leading-relaxed">
-                        Have questions about manufacturing, pricing, or partnerships?
-                        We're here to help turn your vision into reality.
-                    </p>
+    //                 <p className="text-xl md:text-2xl text-slate-200 mb-8 max-w-3xl leading-relaxed">
+    //                     Have questions about manufacturing, pricing, or partnerships?
+    //                     We're here to help turn your vision into reality.
+    //                 </p>
 
-                    {/* Quick contact highlights */}
-                    <div className="mt-10 sm:mt-14 mb-12 flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 px-4">
-                        <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition shadow-lg">
-                            <Clock size={20} className="text-accent" />
-                            <span className="text-sm font-semibold">24/7 Support</span>
-                        </div>
-                        <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition shadow-lg">
-                            <Globe size={20} className="text-accent" />
-                            <span className="text-sm font-semibold">Global Reach</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    //                 {/* Quick contact highlights */}
+    //                 <div className="mt-10 sm:mt-14 mb-12 flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 px-4">
+    //                     <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition shadow-lg">
+    //                         <Clock size={20} className="text-accent" />
+    //                         <span className="text-sm font-semibold">24/7 Support</span>
+    //                     </div>
+    //                     <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition shadow-lg">
+    //                         <Globe size={20} className="text-accent" />
+    //                         <span className="text-sm font-semibold">Global Reach</span>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         </div>
 
-            {/* Slide indicators */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-                {CONTACT_HERO_IMAGES.map((_, idx) => (
-                    <button
-                        key={idx}
-                        aria-label={`Slide ${idx + 1}`}
-                        onClick={() => setCurrentSlide(idx)}
-                        className={`h-2 rounded-full transition-all ${currentSlide === idx ? 'bg-accent w-12' : 'bg-white/40 w-3 hover:bg-white/60'
-                            }`}
-                    />
-                ))}
-            </div>
-        </section>
-    );
+    //         {/* Slide indicators */}
+    //         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+    //             {CONTACT_HERO_IMAGES.map((_, idx) => (
+    //                 <button
+    //                     key={idx}
+    //                     aria-label={`Slide ${idx + 1}`}
+    //                     onClick={() => setCurrentSlide(idx)}
+    //                     className={`h-2 rounded-full transition-all ${currentSlide === idx ? 'bg-accent w-12' : 'bg-white/40 w-3 hover:bg-white/60'
+    //                         }`}
+    //                 />
+    //             ))}
+    //         </div>
+    //     </section>
+    // );
 
     /** Contact Methods Section */
     const ContactMethods = () => (
@@ -356,7 +356,7 @@ const Contact = () => {
 
     return (
         <div className="min-h-screen font-sans text-slate-900 overflow-x-hidden">
-            <Hero />
+            {/* <Hero /> */}
             <ContactMethods />
             <ContactForm />
             <CTA />

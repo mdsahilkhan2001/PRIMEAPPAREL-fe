@@ -303,45 +303,7 @@ const Home = () => {
   );
 
   // Testimonials Slider
-  const TestimonialSlider = () => (
-    <section className="py-24 bg-white">
-      <div className="container-custom max-w-4xl text-center">
-        <div className="mb-12">
-          <Star size={32} className="text-accent fill-current mx-auto mb-4" />
-          <h2 className="text-3xl font-heading font-bold text-primary">Client Stories</h2>
-        </div>
 
-        <div className="relative min-h-[300px]">
-          <div className="transition-opacity duration-500">
-            <p className="text-2xl md:text-3xl font-heading font-light text-slate-800 mb-8 leading-snug">
-              "{TESTIMONIALS[testimonialIndex].message}"
-            </p>
-            <div>
-              <h4 className="text-lg font-bold text-primary">{TESTIMONIALS[testimonialIndex].name}</h4>
-              <p className="text-sm text-slate-500 uppercase tracking-wider mt-1">
-                {TESTIMONIALS[testimonialIndex].company} • {TESTIMONIALS[testimonialIndex].location}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex justify-center gap-4 mt-12">
-            <button
-              onClick={() => setTestimonialIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-              className="p-3 rounded-full border border-slate-200 hover:border-accent hover:text-accent transition-colors"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={() => setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length)}
-              className="p-3 rounded-full border border-slate-200 hover:border-accent hover:text-accent transition-colors"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
 
   // Newsletter / CTA
   const Newsletter = () => (
@@ -357,7 +319,7 @@ const Home = () => {
           <input
             type="email"
             placeholder="Enter your email address"
-            className="flex-1 bg-transparent border-none text-white placeholder-white/60 focus:ring-0 px-4 py-2"
+            className="flex-1 bg-transparent border-none text-white placeholder-white/60 focus:ring-0 outline-none px-4 py-2"
           />
           <button className="bg-white text-accent px-8 py-3 rounded-full font-bold uppercase text-sm tracking-wider hover:bg-slate-100 transition-colors">
             Subscribe
@@ -374,7 +336,43 @@ const Home = () => {
       <NewArrivals />
       <BrandStory />
       <Features />
-      <TestimonialSlider />
+      <section className="py-24 bg-white">
+        <div className="container-custom max-w-4xl text-center">
+          <div className="mb-12">
+            <Star size={32} className="text-accent fill-current mx-auto mb-4" />
+            <h2 className="text-3xl font-heading font-bold text-primary">Client Stories</h2>
+          </div>
+
+          <div className="relative min-h-[300px]">
+            <div className="transition-opacity duration-500">
+              <p className="text-2xl md:text-3xl font-heading font-light text-slate-800 mb-8 leading-snug">
+                "{TESTIMONIALS[testimonialIndex].message}"
+              </p>
+              <div>
+                <h4 className="text-lg font-bold text-primary">{TESTIMONIALS[testimonialIndex].name}</h4>
+                <p className="text-sm text-slate-500 uppercase tracking-wider mt-1">
+                  {TESTIMONIALS[testimonialIndex].company} • {TESTIMONIALS[testimonialIndex].location}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-4 mt-12">
+              <button
+                onClick={() => setTestimonialIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+                className="p-3 rounded-full border border-slate-200 hover:border-accent hover:text-accent transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                onClick={() => setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length)}
+                className="p-3 rounded-full border border-slate-200 hover:border-accent hover:text-accent transition-colors"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
       <Newsletter />
     </div>
   );
