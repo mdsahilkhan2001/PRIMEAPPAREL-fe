@@ -116,57 +116,57 @@ const Contact = () => {
 
     /** Contact Methods Section */
     const ContactMethods = () => (
-        <section className="py-28 bg-white">
+        <section className="py-16 md:py-28 bg-white">
             <div className="container-custom">
-                <div className="text-center mb-16">
+                <div className="text-center mb-10 md:mb-16">
                     <span className="text-accent font-bold tracking-widest uppercase text-sm mb-3 block">
                         Get In Touch
                     </span>
-                    <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6 text-primary">
+                    <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4 md:mb-6 text-primary">
                         Contact Information
                     </h2>
-                    <p className="text-slate-600 max-w-2xl mx-auto text-lg">
+                    <p className="text-slate-600 max-w-2xl mx-auto text-base md:text-lg">
                         Reach out through any channel that works best for you
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                     {/* Email */}
-                    <div className="group bg-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                            <Mail size={32} className="text-white" />
+                    <div className="group bg-slate-50 p-6 md:p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                            <Mail size={24} className="text-white md:w-8 md:h-8" />
                         </div>
-                        <h3 className="text-2xl font-heading font-bold text-primary mb-4">Email Us</h3>
-                        <p className="text-slate-600 mb-4">Quick response within 24 hours</p>
-                        <a href="mailto:exports@primeapparel.com" className="text-accent hover:text-accent/80 font-semibold block mb-2">
+                        <h3 className="text-xl md:text-2xl font-heading font-bold text-primary mb-3 md:mb-4">Email Us</h3>
+                        <p className="text-slate-600 mb-4 text-sm md:text-base">Quick response within 24 hours</p>
+                        <a href="mailto:exports@primeapparel.com" className="text-accent hover:text-accent/80 font-semibold block mb-2 break-all md:break-words">
                             info@primeapparelexports.com
                         </a>
-                        <a href="mailto:sales@primeapparel.com" className="text-accent hover:text-accent/80 font-semibold block">
+                        {/* <a href="mailto:sales@primeapparel.com" className="text-accent hover:text-accent/80 font-semibold block break-all md:break-words">
                             sales@primeapparel.com
-                        </a>
+                        </a> */}
                     </div>
 
                     {/* Phone */}
-                    <div className="group bg-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                            <Phone size={32} className="text-white" />
+                    <div className="group bg-slate-50 p-6 md:p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                            <Phone size={24} className="text-white md:w-8 md:h-8" />
                         </div>
-                        <h3 className="text-2xl font-heading font-bold text-primary mb-4">Call Us</h3>
-                        <p className="text-slate-600 mb-4">Mon-Sat, 9am - 6pm IST</p>
-                        <a href="tel:+919876543210" className="text-accent hover:text-accent/80 font-semibold block text-xl">
+                        <h3 className="text-xl md:text-2xl font-heading font-bold text-primary mb-3 md:mb-4">Call Us</h3>
+                        <p className="text-slate-600 mb-4 text-sm md:text-base">Mon-Sat, 9am - 6pm IST</p>
+                        <a href="tel:+919876543210" className="text-accent hover:text-accent/80 font-semibold block text-lg md:text-xl">
                             +91 90000 12345
                         </a>
                         <p className="text-slate-500 text-sm mt-2">We speak English, Hindi, and more</p>
                     </div>
 
                     {/* Location */}
-                    <div className="group bg-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                            <MapPin size={32} className="text-white" />
+                    <div className="group bg-slate-50 p-6 md:p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                            <MapPin size={24} className="text-white md:w-8 md:h-8" />
                         </div>
-                        <h3 className="text-2xl font-heading font-bold text-primary mb-4">Visit Factory</h3>
-                        <p className="text-slate-600 mb-4">Factory tours by appointment</p>
-                        <p className="text-slate-700 font-medium">
+                        <h3 className="text-xl md:text-2xl font-heading font-bold text-primary mb-3 md:mb-4">Visit Factory</h3>
+                        <p className="text-slate-600 mb-4 text-sm md:text-base">Factory tours by appointment</p>
+                        <p className="text-accent hover:text-accent/80 font-semibold block mb-2 break-all md:break-words">
                             Minara Masjid, Mohammad Ali Road,<br /> Mumbai – 400003
                             <br />Factory: Sion, Mumbai
 

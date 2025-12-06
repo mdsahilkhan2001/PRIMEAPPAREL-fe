@@ -56,7 +56,7 @@ const About = () => {
       {/* Hero content */}
       <div className="container-custom relative z-10 w-full pt-20 pb-20">
         <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 leading-tight">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 font-heading font-bold text-white text-center leading-tight">
             Our Legacy
           </h1>
 

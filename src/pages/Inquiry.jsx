@@ -150,7 +150,7 @@ const Inquiry = () => {
                             ></textarea>
                         </div>
 
-                        <button type="submit" className="w-full bg-accent text-primary font-bold py-4 rounded-lg hover:bg-yellow-500 shadow-lg text-lg">
+                        <button type="submit" className="w-full bg-accent text-primary font-bold py-4 rounded-lg hover:bg-yellow-500 shadow-lg text-lg cursor-pointer">
                             Submit Inquiry
                         </button>
                     </form>
