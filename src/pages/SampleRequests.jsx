@@ -1,83 +1,70 @@
-import { useEffect, useState } from 'react';
-import { fetchLeads, updateLead } from '../api';
-import { MoreVertical, Phone, Mail, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { Phone, Mail } from 'lucide-react';
+import { useGetLeadsQuery, useUpdateLeadMutation } from '../redux/slices/apiSlice';
 import LeadDetailsModal from '../components/LeadDetailsModal';
-import AddLeadModal from '../components/AddLeadModal';
 
-const LeadManagement = () => {
-    const [leads, setLeads] = useState([]);
-    const [loading, setLoading] = useState(true);
+const SampleRequests = () => {
+    const { data, isLoading, isError, error } = useGetLeadsQuery();
+    const [updateLead] = useUpdateLeadMutation();
+
     const [selectedLead, setSelectedLead] = useState(null);
-    const [showAddModal, setShowAddModal] = useState(false);
 
-    useEffect(() => {
-        const loadLeads = async () => {
-            try {
-                const { data } = await fetchLeads();
-                // Filter out Sample Requests
-                const filteredLeads = data.data.filter(lead => lead.leadType !== 'SAMPLE_REQUEST');
-                setLeads(filteredLeads);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadLeads();
-    }, []);
+    // Filter for Sample Requests
+    const leads = data?.data?.filter(lead => lead.leadType === 'SAMPLE_REQUEST') || [];
 
     const handleStatusChange = async (id, newStatus) => {
         try {
-            await updateLead(id, { status: newStatus });
-            setLeads(leads.map(lead => lead._id === id ? { ...lead, status: newStatus } : lead));
+            await updateLead({ id, status: newStatus }).unwrap();
 
-            // Also update selected lead if it's open
+            // Update selected lead if it's open
             if (selectedLead && selectedLead._id === id) {
                 setSelectedLead(prev => ({ ...prev, status: newStatus }));
             }
         } catch (error) {
-            console.error(error);
+            console.error('Error updating status:', error);
         }
-    };
-
-    const handleLeadAdded = (newLead) => {
-        setLeads([newLead, ...leads]);
     };
 
     const getStatusColor = (status) => {
         switch (status) {
             case 'NEW': return 'bg-blue-100 text-blue-800';
             case 'QUALIFIED': return 'bg-purple-100 text-purple-800';
-            case 'SCOPE_LOCKED': return 'bg-indigo-100 text-indigo-800';
-            case 'PI_SENT': return 'bg-yellow-100 text-yellow-800';
-            case 'ORDER_CONFIRMED': return 'bg-green-100 text-green-800';
-            case 'LOST': return 'bg-red-100 text-red-800';
+            case 'SCOPE_LOCKED': return 'bg-indigo-100 text-indigo-800'; // Processing
+            case 'PI_SENT': return 'bg-orange-100 text-orange-800'; // Shipped
+            case 'ORDER_CONFIRMED': return 'bg-green-100 text-green-800'; // Delivered
+            case 'LOST': return 'bg-red-100 text-red-800'; // Rejected
             default: return 'bg-gray-100 text-gray-800';
         }
     };
 
-    if (loading) return (
+    if (isLoading) return (
         <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+    );
+
+    if (isError) return (
+        <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+                <p className="text-red-600 font-semibold">Error loading requests</p>
+                <p className="text-gray-500 text-sm mt-2">{error?.data?.message || 'Please try again later'}</p>
+            </div>
         </div>
     );
 
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">Lead Management</h1>
-                <button
-                    onClick={() => setShowAddModal(true)}
-                    className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90"
-                >
-                    Add New Lead
-                </button>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800">Sample Requests</h1>
+                    <p className="text-sm text-gray-500 mt-1">Manage product sample requests from buyers</p>
+                </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 {leads.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">
-                        No leads found.
+                        No sample requests found.
                     </div>
                 ) : (
                     <table className="w-full text-left">
@@ -85,7 +72,8 @@ const LeadManagement = () => {
                             <tr>
                                 <th className="px-6 py-4 font-medium text-gray-500 text-sm">Name</th>
                                 <th className="px-6 py-4 font-medium text-gray-500 text-sm">Product</th>
-                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Country</th>
+                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Phone</th>
+                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Dest.</th>
                                 <th className="px-6 py-4 font-medium text-gray-500 text-sm">Status</th>
                                 <th className="px-6 py-4 font-medium text-gray-500 text-sm">Date</th>
                                 <th className="px-6 py-4 font-medium text-gray-500 text-sm">Actions</th>
@@ -102,7 +90,17 @@ const LeadManagement = () => {
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-600">
                                         <div className="font-medium">{lead.productType}</div>
-                                        <div className="text-xs text-gray-400">{lead.quantity} pcs</div>
+                                        {lead.quantity && <div className="text-xs text-gray-400">Qty: {lead.quantity}</div>}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-600">
+                                        {lead.phone ? (
+                                            <div className="flex items-center">
+                                                <Phone size={12} className="mr-1" />
+                                                {lead.countryCode || '+1'} {lead.phone}
+                                            </div>
+                                        ) : (
+                                            <span className="text-gray-400">—</span>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-600">{lead.country}</td>
                                     <td className="px-6 py-4">
@@ -111,25 +109,25 @@ const LeadManagement = () => {
                                             onChange={(e) => handleStatusChange(lead._id, e.target.value)}
                                             className={`px-3 py-1 rounded-full text-xs font-bold border-none outline-none cursor-pointer appearance-none text-center min-w-[100px] ${getStatusColor(lead.status)}`}
                                         >
-                                            <option value="NEW">NEW</option>
-                                            <option value="QUALIFIED">QUALIFIED</option>
-                                            <option value="SCOPE_LOCKED">SCOPE LOCKED</option>
-                                            <option value="PI_SENT">PI SENT</option>
-                                            <option value="ORDER_CONFIRMED">ORDER CONFIRMED</option>
-                                            <option value="LOST">LOST</option>
+                                            <option value="NEW">New Request</option>
+                                            <option value="QUALIFIED">Acknowledged</option>
+                                            <option value="SCOPE_LOCKED">Processing</option>
+                                            <option value="PI_SENT">Shipped</option>
+                                            <option value="ORDER_CONFIRMED">Delivered</option>
+                                            <option value="LOST">Rejected</option>
                                         </select>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{new Date(lead.createdAt).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-600">
+                                        <div className="font-medium">{new Date(lead.createdAt).toLocaleDateString()}</div>
+                                        <div className="text-xs text-gray-500">{new Date(lead.createdAt).toLocaleTimeString()}</div>
+                                    </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setSelectedLead(lead)}
-                                                className="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"
-                                                title="View Details"
-                                            >
-                                                <Eye size={16} />
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() => setSelectedLead(lead)}
+                                            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all text-sm font-medium"
+                                        >
+                                            View
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -138,22 +136,13 @@ const LeadManagement = () => {
                 )}
             </div>
 
-            {/* Lead Details Modal */}
             <LeadDetailsModal
                 lead={selectedLead}
                 onClose={() => setSelectedLead(null)}
                 onStatusChange={handleStatusChange}
             />
-
-            {/* Add Lead Modal */}
-            {showAddModal && (
-                <AddLeadModal
-                    onClose={() => setShowAddModal(false)}
-                    onLeadAdded={handleLeadAdded}
-                />
-            )}
         </div>
     );
 };
 
-export default LeadManagement;
+export default SampleRequests;

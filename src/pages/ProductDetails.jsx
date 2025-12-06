@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useGetProductByIdQuery } from '../redux/slices/apiSlice';
-import { ChevronRight, ChevronLeft, Star, MessageCircle, Send, ShoppingCart, Heart, Share2, PenTool, ZoomIn } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Star, MessageCircle, Send, ShoppingCart, Heart, Share2, PenTool, ZoomIn, Package } from 'lucide-react';
 import InquiryModal from '../components/InquiryModal';
+import RequestSampleModal from '../components/RequestSampleModal';
 import CustomizationModal from '../components/customization/CustomizationModal';
 import { getImageUrl, getFileUrl } from '../config';
 
@@ -18,6 +19,7 @@ const ProductDetails = () => {
     const [selectedSize, setSelectedSize] = useState(null);
     const [quantity, setQuantity] = useState(0);
     const [showInquiryModal, setShowInquiryModal] = useState(false);
+    const [showSampleModal, setShowSampleModal] = useState(false);
     const [showCustomizationModal, setShowCustomizationModal] = useState(false);
     const [mediaTab, setMediaTab] = useState('photos');
     const [imageZoom, setImageZoom] = useState(false);
@@ -112,6 +114,12 @@ const ProductDetails = () => {
     const handleCustomization = () => {
         handleAuthAction(() => {
             setShowCustomizationModal(true);
+        });
+    };
+
+    const handleRequestSample = () => {
+        handleAuthAction(() => {
+            setShowSampleModal(true);
         });
     };
 
@@ -296,13 +304,24 @@ const ProductDetails = () => {
                     <div className="lg:col-span-6">
                         <div className="mb-6">
                             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold text-primary mb-2 leading-tight">{product.name}</h1>
-                            {product.sku && (
-                                <div className="inline-block bg-black/90 text-white px-4 py-2 rounded-lg mb-4">
-                                    <p className="text-sm font-bold tracking-wide">
-                                        Item Code - {product.sku}
-                                    </p>
-                                </div>
-                            )}
+                            <div className="flex flex-wrap items-center gap-3 mb-4">
+                                {product.sku && (
+                                    <div className="inline-block bg-black/90 text-white px-4 py-2 rounded-lg">
+                                        <p className="text-sm font-bold tracking-wide">
+                                            Item Code - {product.sku}
+                                        </p>
+                                    </div>
+                                )}
+                                {user?.role === 'BUYER' && (
+                                    <button
+                                        onClick={handleRequestSample}
+                                        className="px-4 py-2 bg-teal-50 text-teal-700 border border-teal-100 hover:bg-teal-100 rounded-lg text-sm font-bold transition-all flex items-center gap-2 cursor-pointer hover:shadow-sm"
+                                    >
+                                        <Package size={16} />
+                                        Request Sample
+                                    </button>
+                                )}
+                            </div>
 
                             <div className="flex flex-wrap items-center gap-4 mb-6">
                                 <div className="flex items-center text-yellow-400 bg-yellow-50 px-3 py-1.5 rounded-full">
@@ -503,6 +522,14 @@ const ProductDetails = () => {
                     product={product}
                     isOpen={showCustomizationModal}
                     onClose={() => setShowCustomizationModal(false)}
+                />
+            )}
+
+            {showSampleModal && (
+                <RequestSampleModal
+                    product={product}
+                    user={user}
+                    onClose={() => setShowSampleModal(false)}
                 />
             )}
         </div>
