@@ -62,7 +62,7 @@ const Register = () => {
                     <img
                         src="/service-img/ser2.jpg"
                         alt="Register Background"
-                        className="w-full h-full object-cover opacity-60"
+                        className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary/50 mix-blend-multiply" />
                 </div>
@@ -105,8 +105,8 @@ const Register = () => {
             </div>
 
             {/* Right Side - Form Section */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-slate-50 overflow-y-auto">
-                <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-2 sm:p-12 lg:p-16 bg-slate-50 overflow-y-auto">
+                <div className="max-w-md w-full space-y-8 bg-white p-4 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
                     <div className="text-center lg:text-left">
                         <div className="lg:hidden flex justify-center mb-6">
                             <ShoppingBag className="h-10 w-10 text-accent" />

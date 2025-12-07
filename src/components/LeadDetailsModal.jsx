@@ -172,7 +172,7 @@ const LeadDetailsModal = ({ lead, onClose, onStatusChange }) => {
                     {/* Message */}
                     <div>
                         <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Message / Requirements</h4>
-                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 text-gray-700 leading-relaxed whitespace-pre-wrap">
+                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 text-gray-700 leading-relaxed whitespace-pre-wrap break-words min-h-[100px]">
                             {lead.message || "No additional details provided."}
                         </div>
                     </div>

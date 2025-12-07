@@ -67,72 +67,74 @@ const SampleRequests = () => {
                         No sample requests found.
                     </div>
                 ) : (
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-50 border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Name</th>
-                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Product</th>
-                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Phone</th>
-                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Dest.</th>
-                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Status</th>
-                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Date</th>
-                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {leads.map((lead) => (
-                                <tr key={lead._id} className="hover:bg-gray-50 group">
-                                    <td className="px-6 py-4">
-                                        <div className="font-medium text-gray-900">{lead.name}</div>
-                                        <div className="text-xs text-gray-500 flex items-center mt-1">
-                                            <Mail size={12} className="mr-1" /> {lead.email}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">
-                                        <div className="font-medium">{lead.productType}</div>
-                                        {lead.quantity && <div className="text-xs text-gray-400">Qty: {lead.quantity}</div>}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">
-                                        {lead.phone ? (
-                                            <div className="flex items-center">
-                                                <Phone size={12} className="mr-1" />
-                                                {lead.countryCode || '+1'} {lead.phone}
-                                            </div>
-                                        ) : (
-                                            <span className="text-gray-400">—</span>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">{lead.country}</td>
-                                    <td className="px-6 py-4">
-                                        <select
-                                            value={lead.status}
-                                            onChange={(e) => handleStatusChange(lead._id, e.target.value)}
-                                            className={`px-3 py-1 rounded-full text-xs font-bold border-none outline-none cursor-pointer appearance-none text-center min-w-[100px] ${getStatusColor(lead.status)}`}
-                                        >
-                                            <option value="NEW">New Request</option>
-                                            <option value="QUALIFIED">Acknowledged</option>
-                                            <option value="SCOPE_LOCKED">Processing</option>
-                                            <option value="PI_SENT">Shipped</option>
-                                            <option value="ORDER_CONFIRMED">Delivered</option>
-                                            <option value="LOST">Rejected</option>
-                                        </select>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">
-                                        <div className="font-medium">{new Date(lead.createdAt).toLocaleDateString()}</div>
-                                        <div className="text-xs text-gray-500">{new Date(lead.createdAt).toLocaleTimeString()}</div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <button
-                                            onClick={() => setSelectedLead(lead)}
-                                            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all text-sm font-medium"
-                                        >
-                                            View
-                                        </button>
-                                    </td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left min-w-[900px]">
+                            <thead className="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th className="px-6 py-4 font-medium text-gray-500 text-sm">Name</th>
+                                    <th className="px-6 py-4 font-medium text-gray-500 text-sm">Product</th>
+                                    <th className="px-6 py-4 font-medium text-gray-500 text-sm">Phone</th>
+                                    <th className="px-6 py-4 font-medium text-gray-500 text-sm">Dest.</th>
+                                    <th className="px-6 py-4 font-medium text-gray-500 text-sm">Status</th>
+                                    <th className="px-6 py-4 font-medium text-gray-500 text-sm">Date</th>
+                                    <th className="px-6 py-4 font-medium text-gray-500 text-sm">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {leads.map((lead) => (
+                                    <tr key={lead._id} className="hover:bg-gray-50 group">
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-gray-900">{lead.name}</div>
+                                            <div className="text-xs text-gray-500 flex items-center mt-1">
+                                                <Mail size={12} className="mr-1" /> {lead.email}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                            <div className="font-medium">{lead.productType}</div>
+                                            {lead.quantity && <div className="text-xs text-gray-400">Qty: {lead.quantity}</div>}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                            {lead.phone ? (
+                                                <div className="flex items-center">
+                                                    <Phone size={12} className="mr-1" />
+                                                    {lead.countryCode || '+1'} {lead.phone}
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400">—</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">{lead.country}</td>
+                                        <td className="px-6 py-4">
+                                            <select
+                                                value={lead.status}
+                                                onChange={(e) => handleStatusChange(lead._id, e.target.value)}
+                                                className={`px-3 py-1 rounded-full text-xs font-bold border-none outline-none cursor-pointer appearance-none text-center min-w-[100px] ${getStatusColor(lead.status)}`}
+                                            >
+                                                <option value="NEW">New Request</option>
+                                                <option value="QUALIFIED">Acknowledged</option>
+                                                <option value="SCOPE_LOCKED">Processing</option>
+                                                <option value="PI_SENT">Shipped</option>
+                                                <option value="ORDER_CONFIRMED">Delivered</option>
+                                                <option value="LOST">Rejected</option>
+                                            </select>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                            <div className="font-medium">{new Date(lead.createdAt).toLocaleDateString()}</div>
+                                            <div className="text-xs text-gray-500">{new Date(lead.createdAt).toLocaleTimeString()}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <button
+                                                onClick={() => setSelectedLead(lead)}
+                                                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all text-sm font-medium"
+                                            >
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 
