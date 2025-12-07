@@ -312,7 +312,7 @@ const ProductDetails = () => {
                                         </p>
                                     </div>
                                 )}
-                                {user?.role === 'BUYER' && (
+                                {(!user || user.role === 'BUYER') && (
                                     <button
                                         onClick={handleRequestSample}
                                         className="px-4 py-2 bg-teal-50 text-teal-700 border border-teal-100 hover:bg-teal-100 rounded-lg text-sm font-bold transition-all flex items-center gap-2 cursor-pointer hover:shadow-sm"
