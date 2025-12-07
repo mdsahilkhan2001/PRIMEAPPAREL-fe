@@ -54,122 +54,123 @@ const Contact = () => {
     };
 
     /** Hero section */
-    const Hero = () => (
-        <section
-            aria-label="Contact Hero"
-            className="relative bg-primary text-white min-h-[70vh] flex items-center overflow-hidden"
-        >
-            {/* Background image slider */}
-            <div className="absolute inset-0 z-0">
-                {CONTACT_HERO_IMAGES.map((img, idx) => (
-                    <div
-                        key={idx}
-                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-60' : 'opacity-0'
-                            }`}
-                        style={{ backgroundImage: `url('${img}')` }}
-                    />
-                ))}
-                {/* Simple overlay for text contrast */}
-                <div className="absolute inset-0 bg-black/30" />
-            </div>
+    // const Hero = () => (
+    //     <section
+    //         aria-label="Contact Hero"
+    //         className="relative bg-primary text-white min-h-[70vh] flex items-center overflow-hidden"
+    //     >
+    //         {/* Background image slider */}
+    //         <div className="absolute inset-0 z-0">
+    //             {CONTACT_HERO_IMAGES.map((img, idx) => (
+    //                 <div
+    //                     key={idx}
+    //                     className={`absolute inset-0 bg-cover bg-center transition-all duration-[2000ms] ease-in-out ${currentSlide === idx ? 'opacity-60 scale-105' : 'opacity-0 scale-100'
+    //                         }`}
+    //                     style={{ backgroundImage: `url('${img}')` }}
+    //                 />
+    //             ))}
+    //             {/* Simple overlay for text contrast */}
+    //             <div className="absolute inset-0 bg-black/30" />
+    //         </div>
 
-            {/* Hero content */}
-            <div className="container-custom relative z-10 w-full pt-20 pb-20">
-                <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 leading-tight">
-                        Let's Connect
-                    </h1>
+    //         {/* Hero content */}
+    //         <div className="container-custom relative z-10 w-full pt-20 pb-20">
+    //             <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+    //                 <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 leading-tight">
+    //                     Let's Connect
+    //                 </h1>
 
-                    <p className="text-xl md:text-2xl text-slate-200 mb-8 max-w-3xl leading-relaxed">
-                        Have questions about manufacturing, pricing, or partnerships?
-                        We're here to help turn your vision into reality.
-                    </p>
+    //                 <p className="text-xl md:text-2xl text-slate-200 mb-8 max-w-3xl leading-relaxed">
+    //                     Have questions about manufacturing, pricing, or partnerships?
+    //                     We're here to help turn your vision into reality.
+    //                 </p>
 
-                    {/* Quick contact highlights */}
-                    <div className="mt-10 sm:mt-14 mb-12 flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 px-4">
-                        <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition shadow-lg">
-                            <Clock size={20} className="text-accent" />
-                            <span className="text-sm font-semibold">24/7 Support</span>
-                        </div>
-                        <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition shadow-lg">
-                            <Globe size={20} className="text-accent" />
-                            <span className="text-sm font-semibold">Global Reach</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    //                 {/* Quick contact highlights */}
+    //                 <div className="mt-10 sm:mt-14 mb-12 flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 px-4">
+    //                     <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition shadow-lg">
+    //                         <Clock size={20} className="text-accent" />
+    //                         <span className="text-sm font-semibold">24/7 Support</span>
+    //                     </div>
+    //                     <div className="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/20 transition shadow-lg">
+    //                         <Globe size={20} className="text-accent" />
+    //                         <span className="text-sm font-semibold">Global Reach</span>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         </div>
 
-            {/* Slide indicators */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-                {CONTACT_HERO_IMAGES.map((_, idx) => (
-                    <button
-                        key={idx}
-                        aria-label={`Slide ${idx + 1}`}
-                        onClick={() => setCurrentSlide(idx)}
-                        className={`h-2 rounded-full transition-all ${currentSlide === idx ? 'bg-accent w-12' : 'bg-white/40 w-3 hover:bg-white/60'
-                            }`}
-                    />
-                ))}
-            </div>
-        </section>
-    );
+    //         {/* Slide indicators */}
+    //         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+    //             {CONTACT_HERO_IMAGES.map((_, idx) => (
+    //                 <button
+    //                     key={idx}
+    //                     aria-label={`Slide ${idx + 1}`}
+    //                     onClick={() => setCurrentSlide(idx)}
+    //                     className={`h-2 rounded-full transition-all ${currentSlide === idx ? 'bg-accent w-12' : 'bg-white/40 w-3 hover:bg-white/60'
+    //                         }`}
+    //                 />
+    //             ))}
+    //         </div>
+    //     </section>
+    // );
 
     /** Contact Methods Section */
     const ContactMethods = () => (
-        <section className="py-28 bg-white">
+        <section className="py-16 md:py-28 bg-white">
             <div className="container-custom">
-                <div className="text-center mb-16">
+                <div className="text-center mb-10 md:mb-16">
                     <span className="text-accent font-bold tracking-widest uppercase text-sm mb-3 block">
                         Get In Touch
                     </span>
-                    <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6 text-primary">
+                    <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4 md:mb-6 text-primary">
                         Contact Information
                     </h2>
-                    <p className="text-slate-600 max-w-2xl mx-auto text-lg">
+                    <p className="text-slate-600 max-w-2xl mx-auto text-base md:text-lg">
                         Reach out through any channel that works best for you
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                     {/* Email */}
-                    <div className="group bg-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                            <Mail size={32} className="text-white" />
+                    <div className="group bg-slate-50 p-6 md:p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                            <Mail size={24} className="text-white md:w-8 md:h-8" />
                         </div>
-                        <h3 className="text-2xl font-heading font-bold text-primary mb-4">Email Us</h3>
-                        <p className="text-slate-600 mb-4">Quick response within 24 hours</p>
-                        <a href="mailto:exports@primeapparel.com" className="text-accent hover:text-accent/80 font-semibold block mb-2">
-                            exports@primeapparel.com
+                        <h3 className="text-xl md:text-2xl font-heading font-bold text-primary mb-3 md:mb-4">Email Us</h3>
+                        <p className="text-slate-600 mb-4 text-sm md:text-base">Quick response within 24 hours</p>
+                        <a href="mailto:exports@primeapparel.com" className="text-accent hover:text-accent/80 font-semibold block mb-2 break-all md:break-words">
+                            info@primeapparelexports.com
                         </a>
-                        <a href="mailto:sales@primeapparel.com" className="text-accent hover:text-accent/80 font-semibold block">
+                        {/* <a href="mailto:sales@primeapparel.com" className="text-accent hover:text-accent/80 font-semibold block break-all md:break-words">
                             sales@primeapparel.com
-                        </a>
+                        </a> */}
                     </div>
 
                     {/* Phone */}
-                    <div className="group bg-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                            <Phone size={32} className="text-white" />
+                    <div className="group bg-slate-50 p-6 md:p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                            <Phone size={24} className="text-white md:w-8 md:h-8" />
                         </div>
-                        <h3 className="text-2xl font-heading font-bold text-primary mb-4">Call Us</h3>
-                        <p className="text-slate-600 mb-4">Mon-Sat, 9am - 6pm IST</p>
-                        <a href="tel:+919876543210" className="text-accent hover:text-accent/80 font-semibold block text-xl">
-                            +91 98765 43210
+                        <h3 className="text-xl md:text-2xl font-heading font-bold text-primary mb-3 md:mb-4">Call Us</h3>
+                        <p className="text-slate-600 mb-4 text-sm md:text-base">Mon-Sat, 9am - 6pm IST</p>
+                        <a href="tel:+919876543210" className="text-accent hover:text-accent/80 font-semibold block text-lg md:text-xl">
+                            +91 90000 12345
                         </a>
                         <p className="text-slate-500 text-sm mt-2">We speak English, Hindi, and more</p>
                     </div>
 
                     {/* Location */}
-                    <div className="group bg-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                            <MapPin size={32} className="text-white" />
+                    <div className="group bg-slate-50 p-6 md:p-10 rounded-3xl shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                            <MapPin size={24} className="text-white md:w-8 md:h-8" />
                         </div>
-                        <h3 className="text-2xl font-heading font-bold text-primary mb-4">Visit Factory</h3>
-                        <p className="text-slate-600 mb-4">Factory tours by appointment</p>
-                        <p className="text-slate-700 font-medium">
-                            123 Fashion Export Zone<br />
-                            Industrial Area<br />
-                            New Delhi, India - 110020
+                        <h3 className="text-xl md:text-2xl font-heading font-bold text-primary mb-3 md:mb-4">Visit Factory</h3>
+                        <p className="text-slate-600 mb-4 text-sm md:text-base">Factory tours by appointment</p>
+                        <p className="text-accent hover:text-accent/80 font-semibold block mb-2 break-all md:break-words">
+                            Minara Masjid, Mohammad Ali Road,<br /> Mumbai – 400003
+                            <br />Factory: Sion, Mumbai
+
+
                         </p>
                     </div>
                 </div>
@@ -292,7 +293,7 @@ const Contact = () => {
 
                             <button
                                 type="submit"
-                                className="w-full bg-gradient-to-r from-accent to-yellow-500 text-white font-bold py-4 rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
+                                className="w-full bg-gradient-to-r from-accent to-yellow-500 text-white font-bold py-4 rounded-xl cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
                             >
                                 <Send size={20} />
                                 Send Message
@@ -355,7 +356,7 @@ const Contact = () => {
 
     return (
         <div className="min-h-screen font-sans text-slate-900 overflow-x-hidden">
-            <Hero />
+            {/* <Hero /> */}
             <ContactMethods />
             <ContactForm />
             <CTA />

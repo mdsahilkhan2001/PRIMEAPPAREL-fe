@@ -47,7 +47,7 @@ const Services = () => {
                 {SERVICES_HERO_IMAGES.map((img, idx) => (
                     <div
                         key={idx}
-                        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${currentSlide === idx ? 'opacity-60' : 'opacity-0'
+                        className={`absolute inset-0 bg-cover bg-center transition-all duration-[2000ms] ease-in-out ${currentSlide === idx ? 'opacity-60 scale-105' : 'opacity-0 scale-100'
                             }`}
                         style={{ backgroundImage: `url('${img}')` }}
                     />
@@ -59,7 +59,7 @@ const Services = () => {
             {/* Hero content */}
             <div className="container-custom relative z-10 w-full pt-20 pb-20">
                 <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 leading-tight">
+                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold mb-6 leading-tight font-heading font-bold text-white text-center">
                         Our Services
                     </h1>
 

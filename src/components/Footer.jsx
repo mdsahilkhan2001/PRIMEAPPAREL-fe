@@ -80,7 +80,7 @@ const Footer = () => {
                                 <div>
                                     <p className="text-white text-sm font-medium mb-1">Head Office</p>
                                     <span className="text-slate-400 text-sm leading-relaxed block">
-                                        Industrial Area, Textile Zone,<br />Ahmedabad, Gujarat, India
+                                        Minara Masjid, Mohammad Ali Road, Mumbai, Maharashtra, India, 400003
                                     </span>
                                 </div>
                             </div>
@@ -90,7 +90,7 @@ const Footer = () => {
                                 </div>
                                 <div>
                                     <p className="text-white text-sm font-medium mb-1">Phone</p>
-                                    <span className="text-slate-400 text-sm">+91 98765 43210</span>
+                                    <span className="text-slate-400 text-sm">+91 90000 12345</span>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-4 group">
@@ -99,7 +99,7 @@ const Footer = () => {
                                 </div>
                                 <div>
                                     <p className="text-white text-sm font-medium mb-1">Email</p>
-                                    <span className="text-slate-400 text-sm">hello@primeapparel.com</span>
+                                    <span className="text-slate-400 text-sm">info@primeapparelexports.com</span>
                                 </div>
                             </div>
                         </div>

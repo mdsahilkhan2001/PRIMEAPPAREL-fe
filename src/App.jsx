@@ -12,6 +12,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Unauthorized from './pages/auth/Unauthorized';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 
 // Role-based Routes
 import BuyerRoutes from './routes/BuyerRoutes';
@@ -22,6 +23,7 @@ import AdminRoutes from './routes/AdminRoutes';
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Public Website Routes */}
         <Route element={<MainLayout />}>

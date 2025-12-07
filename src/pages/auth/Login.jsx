@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { login, reset } from '../../redux/slices/authSlice';
-import { ShoppingBag, Loader2, AlertCircle, CheckCircle2, Mail, Lock, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Loader2, AlertCircle, CheckCircle2, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -10,6 +10,7 @@ const Login = () => {
         password: '',
     });
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const { email, password } = formData;
 
@@ -85,7 +86,7 @@ const Login = () => {
                     <img
                         src="/service-img/ser1.jpg"
                         alt="Login Background"
-                        className="w-full h-full object-cover opacity-60"
+                        className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary/50 mix-blend-multiply" />
                 </div>
@@ -119,8 +120,8 @@ const Login = () => {
             </div>
 
             {/* Right Side - Form Section */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-slate-50">
-                <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-2 sm:p-12 lg:p-16 bg-slate-50">
+                <div className="max-w-md w-full space-y-8 bg-white p-4 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
                     <div className="text-center lg:text-left">
                         <div className="lg:hidden flex justify-center mb-6">
                             <ShoppingBag className="h-10 w-10 text-accent" />
@@ -156,14 +157,25 @@ const Login = () => {
                                     <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-accent transition-colors" />
                                 </div>
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     name="password"
                                     value={password}
                                     onChange={onChange}
                                     required
-                                    className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all ${isError && message === 'Password is wrong' ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
+                                    className={`block w-full pl-11 pr-12 py-3.5 bg-slate-50 border rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all ${isError && message === 'Password is wrong' ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
                                     placeholder="Password"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-accent transition-colors focus:outline-none cursor-pointer"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                    ) : (
+                                        <Eye className="h-5 w-5" />
+                                    )}
+                                </button>
                             </div>
                         </div>
 
@@ -212,7 +224,7 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={isLoading || showSuccess}
-                            className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-base font-bold text-primary bg-accent hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-70 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5"
+                            className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-base font-bold text-primary bg-accent hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-70 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5 cursor-pointer"
                         >
                             {isLoading ? (
                                 <>

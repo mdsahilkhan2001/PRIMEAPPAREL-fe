@@ -14,7 +14,9 @@ const LeadManagement = () => {
         const loadLeads = async () => {
             try {
                 const { data } = await fetchLeads();
-                setLeads(data.data);
+                // Filter out Sample Requests
+                const filteredLeads = data.data.filter(lead => lead.leadType !== 'SAMPLE_REQUEST');
+                setLeads(filteredLeads);
             } catch (error) {
                 console.error(error);
             } finally {
