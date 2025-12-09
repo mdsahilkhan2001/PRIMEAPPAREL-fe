@@ -9,6 +9,7 @@ import ProductManagement from '../pages/ProductManagement';
 import SellerCustomizationRequests from '../pages/customization/SellerCustomizationRequests';
 import SellerDocuments from '../pages/SellerDocuments';
 import SampleRequests from '../pages/SampleRequests';
+import ContactMessages from '../pages/ContactMessages';
 
 const SellerRoutes = () => {
     return (
@@ -23,6 +24,7 @@ const SellerRoutes = () => {
                 <Route path="orders" element={<div className="p-8">Buyer Orders (Coming Soon)</div>} />
                 <Route path="documents" element={<SellerDocuments />} />
                 <Route path="sample-requests" element={<SampleRequests />} />
+                <Route path="contact-messages" element={<ContactMessages />} />
                 <Route path="pi" element={<div className="p-8">PI Generation (Coming Soon)</div>} />
                 <Route path="production" element={<div className="p-8">Production Tracker (Coming Soon)</div>} />
             </Route>

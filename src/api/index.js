@@ -7,7 +7,9 @@ const API = axios.create({
 API.interceptors.request.use((req) => {
     if (localStorage.getItem('user')) {
         const user = JSON.parse(localStorage.getItem('user'));
-        req.headers.Authorization = `Bearer ${user.token}`;
+        if (user.token) {
+            req.headers.Authorization = `Bearer ${user.token}`;
+        }
     }
     return req;
 });
@@ -25,5 +27,10 @@ export const fetchSellerProducts = () => API.get('/products/my-products');
 export const createProduct = (formData) => API.post('/products', formData);
 export const updateProduct = (id, formData) => API.put(`/products/${id}`, formData);
 export const deleteProduct = (id) => API.delete(`/products/${id}`);
+
+// Contact APIs
+export const fetchContacts = () => API.get('/contacts');
+export const updateContactStatus = (id, status) => API.patch(`/contacts/${id}/status`, { status });
+export const deleteContact = (id) => API.delete(`/contacts/${id}`);
 
 export default API;

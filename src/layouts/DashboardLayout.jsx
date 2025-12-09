@@ -44,6 +44,7 @@ const DashboardLayout = () => {
     } else if (user?.role === 'SELLER') {
         menuItems = [
             { name: 'Dashboard', path: '/seller', icon: LayoutDashboard },
+            { name: 'Contact Messages', path: '/seller/contact-messages', icon: MessageSquare },
             { name: 'Sample Requests', path: '/seller/sample-requests', icon: Package },
             { name: 'ODM Leads', path: '/seller/odm-leads', icon: Inbox },
             { name: 'OEM Leads', path: '/seller/customizations', icon: PenTool },
