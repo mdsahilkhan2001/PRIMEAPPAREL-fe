@@ -30,7 +30,9 @@ export const deleteProduct = (id) => API.delete(`/products/${id}`);
 
 // Contact APIs
 export const fetchContacts = () => API.get('/contacts');
+export const fetchContactStats = () => API.get('/contacts/stats');
 export const updateContactStatus = (id, status) => API.patch(`/contacts/${id}/status`, { status });
+export const markAsReplied = (id, replyData) => API.patch(`/contacts/${id}/reply`, replyData);
 export const deleteContact = (id) => API.delete(`/contacts/${id}`);
 
 export default API;

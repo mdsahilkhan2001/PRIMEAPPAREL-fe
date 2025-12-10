@@ -10,19 +10,37 @@ import {
     Globe,
     MessageSquare,
     ArrowRight,
-    AlertCircle
+    AlertCircle,
+    Building2,
+    Briefcase
 } from 'lucide-react';
 
 /**
- * Contact page – Premium B2B wholesale apparel contact page
+ * Contact page – Premium B2B wholesale apparel contact page with enterprise fields
  */
 const Contact = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [formData, setFormData] = useState({
+        // Basic Info
         name: '',
         email: '',
         phone: '',
         countryCode: '+91',
+
+        // Enterprise Info
+        companyName: '',
+        companyWebsite: '',
+        industry: '',
+        companySize: '',
+
+        // Inquiry Details
+        inquiryType: 'General Inquiry',
+        orderVolume: '',
+        preferredContactMethod: [],
+        timeline: '',
+        referralSource: '',
+
+        // Message
         subject: '',
         message: ''
     });
@@ -95,12 +113,21 @@ const Contact = () => {
         }
     };
 
+    const handleCheckboxChange = (e) => {
+        const { value, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            preferredContactMethod: checked
+                ? [...prev.preferredContactMethod, value]
+                : prev.preferredContactMethod.filter(method => method !== value)
+        }));
+    };
+
     // Form submission state
     const [submitting, setSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState({ success: false, message: '' });
 
-    // API URL - direct axios usage since we don't have a contact slice
-    // Use relative path to leverage Vite proxy in development (avoids CORS/Network errors)
+    // API URL
     const API_URL = '/api';
 
     const handleSubmit = async (e) => {
@@ -132,6 +159,15 @@ const Contact = () => {
                     email: '',
                     phone: '',
                     countryCode: '+91',
+                    companyName: '',
+                    companyWebsite: '',
+                    industry: '',
+                    companySize: '',
+                    inquiryType: 'General Inquiry',
+                    orderVolume: '',
+                    preferredContactMethod: [],
+                    timeline: '',
+                    referralSource: '',
                     subject: '',
                     message: ''
                 });
@@ -206,7 +242,7 @@ const Contact = () => {
 
             <section className="py-28 bg-slate-50">
                 <div className="container-custom">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
                         {/* Form Content */}
                         <div>
                             <span className="text-accent font-bold tracking-widest uppercase text-sm mb-3 block">
@@ -240,153 +276,284 @@ const Contact = () => {
                         {/* Form */}
                         <div className="bg-white p-10 rounded-3xl shadow-2xl border border-slate-100">
                             <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
+                                {/* Personal Information */}
+                                <div>
+                                    <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                                        <Briefcase size={20} className="text-accent" />
+                                        Personal Information
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Full Name *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleInputChange}
+                                                className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
+                                                    }`}
+                                                placeholder="John Doe"
+                                            />
+                                            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Email Address *
+                                            </label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleInputChange}
+                                                className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
+                                                    }`}
+                                                placeholder="john@example.com"
+                                            />
+                                            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                                        </div>
+                                    </div>
+
+                                    {/* Phone Number with Country Code */}
+                                    <div className="mt-4">
                                         <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                            Full Name *
+                                            Phone Number *
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <select
+                                                name="countryCode"
+                                                value={formData.countryCode}
+                                                onChange={handleInputChange}
+                                                className="w-32 px-2 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm font-medium"
+                                            >
+                                                <option value="+91">🇮🇳 +91</option>
+                                                <option value="+971">🇦🇪 +971</option>
+                                                <option value="+44">🇬🇧 +44</option>
+                                                <option value="+1">🇺🇸 +1</option>
+                                                <option value="+61">🇦🇺 +61</option>
+                                                <option value="+86">🇨🇳 +86</option>
+                                                <option value="+81">🇯🇵 +81</option>
+                                                <option value="+82">🇰🇷 +82</option>
+                                                <option value="+65">🇸🇬 +65</option>
+                                            </select>
+                                            <input
+                                                type="tel"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleInputChange}
+                                                className={`flex-1 px-4 py-3 rounded-xl border-2 outline-none transition-all ${errors.phone ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
+                                                    }`}
+                                                placeholder="1234567890"
+                                            />
+                                        </div>
+                                        {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                                    </div>
+                                </div>
+
+                                {/* Company Information */}
+                                <div className="pt-4 border-t border-slate-200">
+                                    <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                                        <Building2 size={20} className="text-accent" />
+                                        Company Information (Optional)
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Company Name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="companyName"
+                                                value={formData.companyName}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+                                                placeholder="Your Company Ltd."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Company Website
+                                            </label>
+                                            <input
+                                                type="url"
+                                                name="companyWebsite"
+                                                value={formData.companyWebsite}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+                                                placeholder="www.example.com"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Industry
+                                            </label>
+                                            <select
+                                                name="industry"
+                                                value={formData.industry}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+                                            >
+                                                <option value="">Select Industry</option>
+                                                <option value="Retail">Retail</option>
+                                                <option value="Wholesale">Wholesale</option>
+                                                <option value="E-commerce">E-commerce</option>
+                                                <option value="Fashion Brand">Fashion Brand</option>
+                                                <option value="Manufacturing">Manufacturing</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Company Size
+                                            </label>
+                                            <select
+                                                name="companySize"
+                                                value={formData.companySize}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+                                            >
+                                                <option value="">Select Size</option>
+                                                <option value="1-10">1-10 employees</option>
+                                                <option value="11-50">11-50 employees</option>
+                                                <option value="51-200">51-200 employees</option>
+                                                <option value="201-500">201-500 employees</option>
+                                                <option value="500+">500+ employees</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Inquiry Details */}
+                                <div className="pt-4 border-t border-slate-200">
+                                    <h3 className="text-lg font-semibold text-slate-800 mb-4">Inquiry Details</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Inquiry Type
+                                            </label>
+                                            <select
+                                                name="inquiryType"
+                                                value={formData.inquiryType}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+                                            >
+                                                <option value="General Inquiry">General Inquiry</option>
+                                                <option value="Bulk Order Request">Bulk Order Request</option>
+                                                <option value="Partnership Opportunity">Partnership Opportunity</option>
+                                                <option value="Sample Request">Sample Request</option>
+                                                <option value="Custom Manufacturing (OEM/ODM)">Custom Manufacturing (OEM/ODM)</option>
+                                                <option value="Pricing Information">Pricing Information</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Timeline
+                                            </label>
+                                            <select
+                                                name="timeline"
+                                                value={formData.timeline}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+                                            >
+                                                <option value="">Select Timeline</option>
+                                                <option value="Urgent">Urgent</option>
+                                                <option value="Within 1 week">Within 1 week</option>
+                                                <option value="Within 1 month">Within 1 month</option>
+                                                <option value="Just exploring">Just exploring</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            Expected Order Volume (Optional)
                                         </label>
                                         <input
                                             type="text"
-                                            name="name"
-                                            value={formData.name}
+                                            name="orderVolume"
+                                            value={formData.orderVolume}
                                             onChange={handleInputChange}
-                                            className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
-                                                }`}
-                                            placeholder="John Doe"
+                                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+                                            placeholder="e.g., 500 units per month"
                                         />
-                                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                                     </div>
+
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            Preferred Contact Method
+                                        </label>
+                                        <div className="flex flex-wrap gap-4">
+                                            {['email', 'phone', 'whatsapp'].map((method) => (
+                                                <label key={method} className="flex items-center gap-2 cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        value={method}
+                                                        checked={formData.preferredContactMethod.includes(method)}
+                                                        onChange={handleCheckboxChange}
+                                                        className="w-4 h-4 text-accent border-slate-300 rounded focus:ring-accent"
+                                                    />
+                                                    <span className="text-sm text-slate-700 capitalize">{method}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            How did you hear about us?
+                                        </label>
+                                        <select
+                                            name="referralSource"
+                                            value={formData.referralSource}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
+                                        >
+                                            <option value="">Select Source</option>
+                                            <option value="Google Search">Google Search</option>
+                                            <option value="Social Media">Social Media</option>
+                                            <option value="Referral">Referral</option>
+                                            <option value="Trade Show">Trade Show</option>
+                                            <option value="Advertisement">Advertisement</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Message */}
+                                <div className="pt-4 border-t border-slate-200">
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                            Email Address *
+                                            Subject *
                                         </label>
                                         <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
+                                            type="text"
+                                            name="subject"
+                                            value={formData.subject}
                                             onChange={handleInputChange}
-                                            className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
+                                            className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all ${errors.subject ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
                                                 }`}
-                                            placeholder="john@example.com"
+                                            placeholder="Bulk Order Inquiry"
                                         />
-                                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                                        {errors.subject && <p className="text-red-500 text-xs mt-1">{errors.subject}</p>}
                                     </div>
-                                </div>
 
-                                {/* Phone Number with Country Code */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                        Phone Number *
-                                    </label>
-                                    <div className="flex gap-2">
-                                        <select
-                                            name="countryCode"
-                                            value={formData.countryCode}
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                            Message *
+                                        </label>
+                                        <textarea
+                                            name="message"
+                                            value={formData.message}
                                             onChange={handleInputChange}
-                                            className="w-32 px-2 py-3 rounded-xl border-2 border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all text-sm font-medium"
-                                        >
-                                            {/* Popular Countries First */}
-                                            <option value="+91">🇮🇳 India +91</option>
-                                            <option value="+971">🇦🇪 UAE +971</option>
-                                            <option value="+44">🇬🇧 UK +44</option>
-                                            <option value="+1">🇺🇸 USA +1</option>
-                                            <option value="+61">🇦🇺 Australia +61</option>
-                                            <option value="+7">🇷🇺 Russia +7</option>
-
-                                            {/* Middle East */}
-                                            <option value="+966">🇸🇦 Saudi Arabia +966</option>
-                                            <option value="+974">🇶🇦 Qatar +974</option>
-                                            <option value="+968">🇴🇲 Oman +968</option>
-                                            <option value="+965">🇰🇼 Kuwait +965</option>
-                                            <option value="+973">🇧🇭 Bahrain +973</option>
-                                            <option value="+962">🇯🇴 Jordan +962</option>
-                                            <option value="+961">🇱🇧 Lebanon +961</option>
-                                            <option value="+90">🇹🇷 Turkey +90</option>
-
-                                            {/* Europe */}
-                                            <option value="+33">🇫🇷 France +33</option>
-                                            <option value="+49">🇩🇪 Germany +49</option>
-                                            <option value="+39">🇮🇹 Italy +39</option>
-                                            <option value="+34">🇪🇸 Spain +34</option>
-                                            <option value="+31">🇳🇱 Netherlands +31</option>
-                                            <option value="+41">🇨🇭 Switzerland +41</option>
-                                            <option value="+43">🇦🇹 Austria +43</option>
-                                            <option value="+32">🇧🇪 Belgium +32</option>
-
-                                            {/* Asia Pacific */}
-                                            <option value="+86">🇨🇳 China +86</option>
-                                            <option value="+81">🇯🇵 Japan +81</option>
-                                            <option value="+82">🇰🇷 South Korea +82</option>
-                                            <option value="+65">🇸🇬 Singapore +65</option>
-                                            <option value="+60">🇲🇾 Malaysia +60</option>
-                                            <option value="+66">🇹🇭 Thailand +66</option>
-                                            <option value="+84">🇻🇳 Vietnam +84</option>
-                                            <option value="+63">🇵🇭 Philippines +63</option>
-                                            <option value="+62">🇮🇩 Indonesia +62</option>
-
-                                            {/* South Asia */}
-                                            <option value="+92">🇵🇰 Pakistan +92</option>
-                                            <option value="+880">🇧🇩 Bangladesh +880</option>
-                                            <option value="+94">🇱🇰 Sri Lanka +94</option>
-                                            <option value="+977">🇳🇵 Nepal +977</option>
-
-                                            {/* Africa */}
-                                            <option value="+27">🇿🇦 South Africa +27</option>
-                                            <option value="+20">🇪🇬 Egypt +20</option>
-                                            <option value="+234">🇳🇬 Nigeria +234</option>
-                                            <option value="+254">🇰🇪 Kenya +254</option>
-
-                                            {/* Americas */}
-                                            <option value="+1">🇨🇦 Canada +1</option>
-                                            <option value="+52">🇲🇽 Mexico +52</option>
-                                            <option value="+55">🇧🇷 Brazil +55</option>
-                                            <option value="+54">🇦🇷 Argentina +54</option>
-                                        </select>
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleInputChange}
-                                            className={`flex-1 px-4 py-3 rounded-xl border-2 outline-none transition-all ${errors.phone ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
+                                            rows="5"
+                                            className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all resize-none ${errors.message ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
                                                 }`}
-                                            placeholder="1234567890"
-                                            pattern="[0-9]{6,15}"
-                                            title="Please enter a valid phone number (6-15 digits)"
-                                        />
+                                            placeholder="Tell us about your requirements..."
+                                        ></textarea>
+                                        {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
                                     </div>
-                                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                        Subject *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="subject"
-                                        value={formData.subject}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all ${errors.subject ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
-                                            }`}
-                                        placeholder="Bulk Order Inquiry"
-                                    />
-                                    {errors.subject && <p className="text-red-500 text-xs mt-1">{errors.subject}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                        Message *
-                                    </label>
-                                    <textarea
-                                        name="message"
-                                        value={formData.message}
-                                        onChange={handleInputChange}
-                                        rows="5"
-                                        className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all resize-none ${errors.message ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-accent focus:ring-2 focus:ring-accent/20'
-                                            }`}
-                                        placeholder="Tell us about your requirements..."
-                                    ></textarea>
-                                    {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
                                 </div>
 
                                 <button
